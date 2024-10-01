@@ -125,6 +125,8 @@ class RichardsonLucy(DeconvolutionAlgorithmBase):
         
         # delta model
         sum_T_product = self.calc_summed_T_product(ratio_list)
+        print(sum_T_product._sumw2)
+        print(self.summed_exposure_map._sumw2)
         self.delta_model = self.model * (sum_T_product/self.summed_exposure_map - 1)
 
         if self.mask is not None:
