@@ -13,6 +13,8 @@ from cosipy.response import FullDetectorResponse
 
 from .image_deconvolution_data_interface_base import ImageDeconvolutionDataInterfaceBase
 
+import sparse as s
+
 class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
     """
     A subclass of ImageDeconvolutionDataInterfaceBase for the COSI data challenge 2.
@@ -94,6 +96,7 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
             new._model_axes = Axes(axes)
         else:
             new._model_axes = Axes([new._coordsys_conv_matrix.axes['lb'], new._image_response.axes['Ei']])
+            # new._coordsys_conv_matrix.tocsr() ??
 
         new._calc_exposure_map()
 
