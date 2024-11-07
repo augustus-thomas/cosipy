@@ -374,9 +374,9 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
 
         # loglikelood = np.sum( self.event * np.log(expectation) ) - np.sum(expectation)
 
-        return jit_calc_loglikelood(self.event.contents.ravel, expectation..contents.ravel)
+        return jit_calc_loglikelood(self.event.contents.ravel, expectation.contents.ravel)
 
-@njit(parallel=True)
+@njit(parallel=True, nogil=True, fastmath=True)
 def jit_calc_loglikelihood(event, expectation)
     loglikelihood = 0
     for i in prange(event.shape[0]):
