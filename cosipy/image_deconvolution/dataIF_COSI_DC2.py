@@ -252,6 +252,10 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
 
         expectation = Histogram(self.data_axes)
         
+        # these tensordots will need to be on the GPU (architecture; very difficult!)
+
+        # overwriting the Histogram contents with expectation[:] might be costly
+        # refactor: calculation the expectation and then write it to the Histogram
         if self._coordsys_conv_matrix is None:
             expectation[:] = np.tensordot( model.contents, self.image_response_contents, axes = ([0,1],[0,1])) * model.axes['lb'].pixarea()
             # ['lb', 'Ei'] x [NuLambda(lb), Ei, Em, Phi, PsiChi] -> [Em, Phi, PsiChi]
@@ -265,6 +269,14 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
             expectation[:] = np.tensordot( map_rotated, self.image_response_contents, axes = ([1,2], [0,1]))
             # [Time/ScAtt, NuLambda, Ei] x [NuLambda, Ei, Em, Phi, PsiChi] -> [Time/ScAtt, Em, Phi, PsiChi]
 
+        # need to accelerate this
+        # is bkg_model dense
+        # Get this into Numba and use prange()
+        # Histograms of Quantities 
+        # take Units out, do math with Numba, but Units back in
+        # Quantity array as array
+        # Unit multiply is costly
+        # Need to make sure units are right
         if dict_bkg_norm is not None: 
             for key in self.keys_bkg_models():
                 expectation += self.bkg_model(key) * dict_bkg_norm[key]
@@ -350,6 +362,14 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
         float
             Log-likelood
         """
+        # NUMBA
+        # event is dense hist
+        # expectation is dense hist
+        # wrap this in Numba
+        # np.ravel() (no copy)
+        # passed to JIT compiled function in Numba
+        # range to prange()
+        # fast math mode turned on
         loglikelood = np.sum( self.event * np.log(expectation) ) - np.sum(expectation)
 
         return loglikelood
