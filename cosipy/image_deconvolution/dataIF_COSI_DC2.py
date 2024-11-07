@@ -1,7 +1,8 @@
 import numpy as np
 from tqdm.autonotebook import tqdm
 import astropy.units as u
-
+from numba import njit, prange
+import cmath
 import logging
 logger = logging.getLogger(__name__)
 
@@ -370,6 +371,14 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
         # passed to JIT compiled function in Numba
         # range to prange()
         # fast math mode turned on
-        loglikelood = np.sum( self.event * np.log(expectation) ) - np.sum(expectation)
 
-        return loglikelood
+        # loglikelood = np.sum( self.event * np.log(expectation) ) - np.sum(expectation)
+
+        return jit_calc_loglikelood(self.event.contents.ravel, expectation..contents.ravel)
+
+@njit(parallel=True)
+def jit_calc_loglikelihood(event, expectation)
+    loglikelihood = 0
+    for i in prange(event.shape[0]):
+        loglikelihood += cmath.log(expectation[i])*event[i] - expectation[i]
+    return loglikelihood
