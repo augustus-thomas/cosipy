@@ -380,5 +380,13 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
 def jit_calc_loglikelihood(event, expectation):
     loglikelihood = 0
     for i in prange(event.shape[0]):
-        loglikelihood += np.log(expectation[i])*event[i] - expectation[i]
+        loglikelihood += np.log(expectation[i], dtype=np.float32)*event[i] - expectation[i] # np does checks, float64
+        # math? not cmath
+        # profile dtype=float64 vs. dtype=np.float32 vs. cmath vs. math
+        # different cores
+        # SVML installed for Numba's compiler
     return loglikelihood
+
+    # from numba import set_num_threads
+    # set_num_threads(8)
+    
