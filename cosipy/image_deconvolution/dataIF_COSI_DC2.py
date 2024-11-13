@@ -2,7 +2,7 @@ import numpy as np
 from tqdm.autonotebook import tqdm
 import astropy.units as u
 from numba import njit, prange
-import cmath
+import math
 import logging
 logger = logging.getLogger(__name__)
 
@@ -380,7 +380,7 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
 def jit_calc_loglikelihood(event, expectation):
     loglikelihood = 0
     for i in prange(event.shape[0]):
-        loglikelihood += np.log(expectation[i], dtype=np.float32)*event[i] - expectation[i] # np does checks, float64
+        loglikelihood += math.log(expectation[i], dtype=np.float32)*event[i] - expectation[i] # np does checks, float64
         # math? not cmath
         # profile dtype=float64 vs. dtype=np.float32 vs. cmath vs. math
         # different cores
