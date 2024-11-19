@@ -1,7 +1,8 @@
 import numpy as np
 from tqdm.autonotebook import tqdm
 import astropy.units as u
-from numba import njit, prange
+from numba import njit, prange, float32, float64
+set_num_threads(2)
 import math
 import logging
 logger = logging.getLogger(__name__)
@@ -375,7 +376,7 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
         # loglikelood = np.sum( self.event * np.log(expectation) ) - np.sum(expectation)~
         return jit_calc_loglikelihood(self.event.contents.ravel(), expectation.contents.ravel())
 
-@njit(parallel=True, nogil=True, fastmath=True)
+@njit(float64(float64[:], float64[:]), parallel=True, nogil=True, fastmath=True)
 def jit_calc_loglikelihood(event, expectation):
     loglikelihood = 0
     for i in prange(event.shape[0]):
