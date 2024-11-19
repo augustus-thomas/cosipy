@@ -1,7 +1,7 @@
 import numpy as np
 from tqdm.autonotebook import tqdm
 import astropy.units as u
-from numba import njit, prange, float32, float64
+from numba import njit, prange, float32, float64, set_num_threads
 set_num_threads(2)
 import math
 import logging
