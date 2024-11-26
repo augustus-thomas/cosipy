@@ -279,11 +279,17 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
         # Quantity array as array
         # Unit multiply is costly
         # Need to make sure units are right
+        print("dict_bkg_norm" + type(dict_bkg_norm))
+        print("keys_bkg_models" + type(self.keys_bkg_models()))
+
         if dict_bkg_norm is not None: 
             for key in self.keys_bkg_models():
+                print("bkg_model(model)"+ type(bkg_model(key)))
+                print("dict_bkg_norm[key]" + type(dict_bkg_norm[key]))
                 expectation += self.bkg_model(key) * dict_bkg_norm[key]
+        print("almost_zero" + type(almost_zero))
         expectation += almost_zero
-        
+        print("expectation" + type(expectation))
         return expectation
 
     def calc_T_product(self, dataspace_histogram):
@@ -374,19 +380,24 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
         # fast math mode turned on
 
         # loglikelood = np.sum( self.event * np.log(expectation) ) - np.sum(expectation)~
+        # contents are float64
         return jit_calc_loglikelihood(self.event.contents.ravel().astype(np.float32), expectation.contents.ravel().astype(np.float32))
+        # having it be float32 upfront
 
 @njit(float32(float32[:], float32[:]), parallel=True, nogil=True, fastmath=True)
 def jit_calc_loglikelihood(event, expectation):
+    assert type(event) == numba.float32
     loglikelihood = 0
-    for i in prange(event.shape[0]):
+    for i in prange(event.shape[0]): #((3072 x 1 x 1 x 60 x 3072))
         loglikelihood += np.log(expectation[i])*event[i] - expectation[i] # np does checks, float64
+        # not np.load(dtype=np.float64)
         # math? not cmath
         # profile dtype=float64 vs. dtype=np.float32 vs. cmath vs. math
         # different cores
         # SVML installed for Numba's compiler
+        # How does Numba do the reduction? Parralel reduction?
     return loglikelihood
 
     # from numba import set_num_threads
     # set_num_threads(8)
-    
+
