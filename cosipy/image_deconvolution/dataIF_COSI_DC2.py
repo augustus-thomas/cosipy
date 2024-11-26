@@ -386,7 +386,7 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
 
 @njit(float32(float32[:], float32[:]), parallel=True, nogil=True, fastmath=True)
 def jit_calc_loglikelihood(event, expectation):
-    assert type(event) == numba.float32
+    # assert type(event) == numba.float32
     loglikelihood = 0
     for i in prange(event.shape[0]): #((3072 x 1 x 1 x 60 x 3072))
         loglikelihood += np.log(expectation[i])*event[i] - expectation[i] # np does checks, float64
