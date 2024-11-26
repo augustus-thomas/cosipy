@@ -281,16 +281,15 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
         # Need to make sure units are right
         print("dict_bkg_norm", type(dict_bkg_norm))
         print("keys_bkg_models", type(self.keys_bkg_models()))
-
+        expectation_contents = expectation.contents
         if dict_bkg_norm is not None: 
             for key in self.keys_bkg_models():
-                print("key", type(key))
-                print("bkg_model(model)", type(self.bkg_model(key)))
-                print("dict_bkg_norm[key]" , type(dict_bkg_norm[key]))
-                expectation += self.bkg_model(key) * dict_bkg_norm[key]
-        print("almost_zero", type(almost_zero))
-        expectation += almost_zero
-        print("expectation", type(expectation))
+                # print("key", type(key)) # str
+                # print("bkg_model(model)", type(self.bkg_model(key))) # Histogram
+                # print("dict_bkg_norm[key]" , type(dict_bkg_norm[key])) # float64
+                expectation += jit_add_bkg(expectation_contents.ravel(), self.bkg_model(key).contents.ravel(), dict_bkg_norm[key])
+        expectation_contents = jit_add(expectation_contents, almost_zero)
+        expectation.contents = expectation_contents
         return expectation
 
     def calc_T_product(self, dataspace_histogram):
@@ -402,3 +401,14 @@ def jit_calc_loglikelihood(event, expectation):
     # from numba import set_num_threads
     # set_num_threads(8)
 
+@njit(float64[:](float64[:], float64[:], float64), parallel=True, nogil=True, fastmath=True)
+def jit_add_bkg(expectation, bkg_model, bkg_norm):
+    for i in prange(expectation.shape[0]):
+        expectation[i] += bkg_model[i]*bkg_norm
+    return expectation
+
+@njit(float64[:](float64[:], float64), parallel=True, nogil=True, fastmath=True)
+def jit_add(array, val):
+    for i in prange(array.shape[0]):
+        array[i] += val
+    return array
