@@ -837,7 +837,7 @@ class FullDetectorResponse(HealpixBase):
                                   exposure_map = None,
                                   coord = None,
                                   scatt_map = None,
-                                  Earth_occ = True):
+                                  earth_occ = True):
         """
         Convolve the all-sky detector response with exposure for a source at a given
         sky location.
@@ -1010,7 +1010,7 @@ class FullDetectorResponse(HealpixBase):
                                               coordsys=coordsys,
                                               earth_occ=Earth_occ)
 
-        psr = self.get_point_source_response(coord = coord, scatt_map = scatt_map, Earth_occ = Earth_occ)
+        psr = self.get_point_source_response(coord = coord, scatt_map = scatt_map, earth_occ = Earth_occ)
 
         return psr
 
