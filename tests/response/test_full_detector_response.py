@@ -108,7 +108,7 @@ def test_merge_psr_to_extended_source_response(tmp_path):
                                                                      coordsys='galactic',
                                                                      nside_image=None,
                                                                      nside_scatt_map=None,
-                                                                     Earth_occ=True)
+                                                                     earth_occ=True)
 
             psr.write(tmp_path / f"psr_{ipix_image:08}.h5")
 

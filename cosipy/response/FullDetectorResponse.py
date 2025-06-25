@@ -971,7 +971,7 @@ class FullDetectorResponse(HealpixBase):
 
         return coordsys, nside_image, nside_scatt_map
 
-    def get_point_source_response_per_image_pixel(self, ipix_image, orientation, coordsys = 'galactic', nside_image = None, nside_scatt_map = None, Earth_occ = True):
+    def get_point_source_response_per_image_pixel(self, ipix_image, orientation, coordsys = 'galactic', nside_image = None, nside_scatt_map = None, earth_occ = True):
         """
         Generate point source response for a specific HEALPix pixel by convolving
         the all-sky detector response with exposure.
@@ -1008,9 +1008,9 @@ class FullDetectorResponse(HealpixBase):
                                               target_coord = coord,
                                               scheme='ring',
                                               coordsys=coordsys,
-                                              earth_occ=Earth_occ)
+                                              earth_occ=earth_occ)
 
-        psr = self.get_point_source_response(coord = coord, scatt_map = scatt_map, earth_occ = Earth_occ)
+        psr = self.get_point_source_response(coord = coord, scatt_map = scatt_map, earth_occ = earth_occ)
 
         return psr
 
@@ -1050,7 +1050,7 @@ class FullDetectorResponse(HealpixBase):
         for ipix in tqdm(range(hp.nside2npix(nside_image))):
 
             psr = self.get_point_source_response_per_image_pixel(ipix, orientation, coordsys = coordsys,
-                                                                 nside_image = nside_image, nside_scatt_map = nside_scatt_map, Earth_occ = Earth_occ)
+                                                                 nside_image = nside_image, nside_scatt_map = nside_scatt_map, earth_occ = Earth_occ)
 
             extended_source_response[ipix] = psr.contents
 
