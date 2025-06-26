@@ -866,7 +866,7 @@ class FullDetectorResponse(HealpixBase):
         # TODO: deprecate exposure_map in favor of coords + scatt map for both local
         # and interntial coords
 
-        if Earth_occ == True:
+        if earth_occ == True:
             if coord != None:
                 if coord.size > 1:
                     raise ValueError("For Earth occultation you must use the same coordinate as was used for the scatt map!")
