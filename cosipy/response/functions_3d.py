@@ -4,8 +4,8 @@ from astropy.units import Quantity
 from astropy.coordinates import Galactic
 from scipy import integrate
 from scipy.interpolate import interp1d
-from histpy import Histogram, Axes, Axis, HealpixAxis
-from threeML import Band, DiracDelta, Constant, Line, Quadratic, Cubic, Quartic, StepFunction, StepFunctionUpper, Cosine_Prior, Uniform_prior, PhAbs, Gaussian
+from histpy import Histogram
+
 import sys
 
 import logging

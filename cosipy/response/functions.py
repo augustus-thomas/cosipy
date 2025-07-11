@@ -4,7 +4,7 @@ from astropy.units import Quantity
 from astropy.coordinates import Galactic
 from scipy import integrate
 
-from histpy import Histogram, Axes, Axis, HealpixAxis
+from histpy import Histogram
 
 from threeML import Band, DiracDelta, Constant, Line, Quadratic, Cubic, Quartic, StepFunction, StepFunctionUpper, Cosine_Prior, Uniform_prior, PhAbs, Gaussian
 
@@ -47,9 +47,9 @@ def get_integrated_spectral_model(spectrum, energy_axis):
     if spectrum_unit == None:
         if isinstance(spectrum, Constant):
             spectrum_unit = spectrum.k.unit
-        elif isinstance(spectrum, Line) or isinstance(spectrum, Quadratic) or isinstance(spectrum, Cubic) or isinstance(spectrum, Quartic):
+        elif isinstance(spectrum, (Line, Quadratic, Cubic, Quartic)):
             spectrum_unit = spectrum.a.unit
-        elif isinstance(spectrum, StepFunction) or isinstance(spectrum, StepFunctionUpper) or isinstance(spectrum, Cosine_Prior) or isinstance(spectrum, Uniform_prior) or isinstance(spectrum, DiracDelta): 
+        elif isinstance(spectrum, (StepFunction, StepFunctionUpper, Cosine_Prior, Uniform_prior, DiracDelta)): 
             spectrum_unit = spectrum.value.unit
         elif isinstance(spectrum, PhAbs):
             spectrum_unit = u.dimensionless_unscaled

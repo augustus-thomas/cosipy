@@ -1,30 +1,21 @@
-import glob
 from pathlib import Path
-
-from tqdm.autonotebook import tqdm
 
 import numpy as np
 
 import h5py as h5
 import hdf5plugin
 
-from astropy.time import Time
-from astropy.coordinates import SkyCoord
 from astropy.units import Quantity
 import astropy.units as u
 
 from scoords import SpacecraftFrame, Attitude
 
-import mhealpy as hp
-from mhealpy import HealpixBase, HealpixMap
+from mhealpy import HealpixBase
 
-from histpy import Histogram, Axes, Axis, HealpixAxis
+from histpy import Axes, HealpixAxis
 
-from astromodels.core.model_parser import ModelParser
-
-from .RspConverter import RspConverter
-from .PointSourceResponse import PointSourceResponse
 from .DetectorResponse import DetectorResponse
+from .PointSourceResponse import PointSourceResponse
 from .ExtendedSourceResponse import ExtendedSourceResponse
 
 import logging
@@ -109,6 +100,9 @@ class FullDetectorResponse(HealpixBase):
         if new._axes[0].label != "NuLambda":
             raise RuntimeError("Full detector response must have NuLambda as its first dimension")
 
+        # axes minus NuLambda -- used for getting pixel slices for PSRs
+        new._rest_axes = new._axes[1:]
+
         new._unit = u.Unit(new._drm.attrs['UNIT'])
 
         # effective area for counts
@@ -164,6 +158,18 @@ class FullDetectorResponse(HealpixBase):
         :py:class:`histpy.Axes`
         """
         return self._axes
+
+    @property
+    def dtype(self):
+        """
+        Data type returned by to_dt() and slicing
+
+        Returns
+        -------
+        :py:class:`numpy.dtype`
+        """
+
+        return self._eff_area.dtype
 
     @property
     def unit(self):
@@ -243,26 +249,46 @@ class FullDetectorResponse(HealpixBase):
 
         """
 
-        rest_axes = self._axes[1:]
+        data = self._get_pixel_raw(pix, weight)
+
+        unit = self.unit
+        if isinstance(weight, Quantity):
+            unit *= weight.unit
+
+        return DetectorResponse(self._rest_axes,
+                                contents = data,
+                                unit = unit,
+                                copy_contents = False)
+
+    def _get_pixel_raw(self, pix, weight=None):
+        """
+        The guts of get_pixel() -- actually loads the data from the HDF
+        dataset and performs the multiply.
+
+        Parameters
+        ----------
+        as for get_pixel()
+
+        Returns
+        -------
+        data : ndarray of float
+           the PSR data
+
+        """
 
         counts = self._drm['COUNTS'][pix]
 
         w = self._eff_area
-        unit = self.unit
 
         if weight is not None:
             if isinstance(weight, Quantity):
-                w = w * weight.value
-                unit *= weight.unit
+                w = w * weight.value # don't modify eff_area in place
             else:
                 w = w * weight
 
-        data = counts * rest_axes.expand_dims(w, rest_axes.label_to_index("Ei"))
+        data = counts * self._rest_axes.expand_dims(w, self._rest_axes.label_to_index("Ei"))
 
-        return DetectorResponse(rest_axes,
-                                contents = data,
-                                unit = unit,
-                                copy_contents = False)
+        return data
 
     def __getitem__(self, pix):
 
@@ -340,122 +366,274 @@ class FullDetectorResponse(HealpixBase):
 
         pixels, weights = self.get_interp_weights(coord)
 
-        dr = DetectorResponse(self._axes[1:],
-                              unit=self.unit)
+        dr = np.zeros(self._rest_axes.shape)
 
         for p, w in zip(pixels, weights):
-            dr += self.get_pixel(p, weight=w)
+            dr_p = self._get_pixel_raw(p, weight=w)
+            dr += dr_p
 
-        return dr
+        return DetectorResponse(self._rest_axes,
+                                contents = dr,
+                                unit = self.unit,
+                                copy_contents = False)
+
 
     def get_point_source_response(self,
                                   exposure_map = None,
                                   coord = None,
                                   scatt_map = None,
                                   Earth_occ = True):
-        """
-        Convolve the all-sky detector response with exposure for a source at a given
-        sky location.
 
-        Provide either a exposure map (aka dweel time map) or a combination of a
-        sky coordinate and a spacecraft attitude map.
+        """
+        Convolve this response with exposure for a point source at a
+        given sky location.
+
+        Input must provide one of:
+          * an exposure map (dwell-time map) of time intervals to
+            instrument-frame pixels
+          * an inertial-frame sky coordinate for the source, plus a
+            spacecraft attitude map describing the exposure of the
+            spacecraft to the source over time.
+
+        If a scatt_map is used, it is important to know whether the
+        weighting of each time bin accounts for earth occultation.  If
+        so, then the scatt_map is dependent on the source coordinate,
+        and the same (single) coordinate must be passed as an
+        argument.  If earth occultation was not ocnsidered, the
+        scatt_map is independent of the source coordinate and may be
+        used to compute PSRs for many source coordinates at once;
+        however, not considering earth occultation results in a
+        non-physical result.
 
         Parameters
         ----------
         exposure_map : :py:class:`mhealpy.HealpixMap`
-            Effective time spent by the source at each pixel location in spacecraft coordinates
+            Effective time spent by the source at each pixel location
+            in spacecraft coordinates
         coord : :py:class:`astropy.coordinates.SkyCoord`
-            Source coordinate
+            Source coordinate for which we want to generate a PSR
         scatt_map : :py:class:`SpacecraftAttitudeMap`
-            Spacecraft attitude map
+            Spacecraft attitude map used to calculate source path over
+            time in spacecraft coordinates
         Earth_occ : bool, optional
-            Option to include Earth occultation in the respeonce.
-            Default is True, in which case you can only pass one
-            coord, which must be the same as was used for the scatt map.
+            Option to include Earth occultation in the response
+            (scatt_map mode only).  If True (the default), only one
+            source coordinate may be provided, which must be the same
+            as the one used to create the scatt_map.
 
         Returns
         -------
-        :py:class:`PointSourceResponse`
+        :py:class:`PointSourceResponse` or tuple of same
+            Inertial-frame point-source response for each source coordinate;
+            tuple if more than one coordinate provided
+
         """
 
         # TODO: deprecate exposure_map in favor of coords + scatt map for both local
-        # and interntial coords
-
-        if Earth_occ == True:
-            if coord != None:
-                if coord.size > 1:
-                    raise ValueError("For Earth occultation you must use the same coordinate as was used for the scatt map!")
+        # and inertial coords
 
         if exposure_map is not None:
+
             if not self.conformable(exposure_map):
                 raise ValueError(
                     "Exposure map has a different grid than the detector response")
 
-            psr = PointSourceResponse(self._axes[1:],
-                                      unit=u.cm*u.cm*u.s)
+            psr = np.zeros(self._rest_axes.shape)
 
             for p in np.nonzero(exposure_map)[0]:
-                psr += self.get_pixel(p, weight=exposure_map[p])
+                psr_p = self._get_pixel_raw(p, weight=exposure_map[p])
+                psr += psr_p
 
-            return psr
+            return PointSourceResponse(self._rest_axes,
+                                       contents = psr,
+                                       unit = u.cm*u.cm*u.s,
+                                       copy_contents = False)
 
         else:
 
-            # Rotate to inertial coordinates
+            from cosipy.polarization.polarization_angle import PolarizationAngle
+            from cosipy.polarization.conventions import IAUPolarizationConvention
 
             if coord is None or scatt_map is None:
                 raise ValueError("Provide either exposure map or coord + scatt_map")
 
             if isinstance(coord.frame, SpacecraftFrame):
-                raise ValueError("Local coordinate + scatt_map not currently supported")
+                raise ValueError("scatt_map is not supported for source in local coordinate frame")
 
-            axis = "PsiChi"
+            if Earth_occ and coord.size > 1:
+                raise ValueError("For Earth occultation, only one coordinate (the one used to create the scatt map) is allowed")
 
-            coords_axis = Axis(np.arange(coord.size+1), label = 'coords')
-            axes = Axes([coords_axis] + list(self._axes[1:])) # copies all Axis objects
-            axes["PsiChi"].coordsys = coord.frame # OK because not shared with any other Axes yet
+            has_pol = ('Pol' in self._axes.labels and coord.frame != 'spacecraftframe')
+            if has_pol and coord.size > 1:
+                raise ValueError("For polarization, only a single source coordinate is supported")
 
-            psrs = Histogram(axes, unit = self.unit * scatt_map.unit)
+            coord = np.atleast_1d(coord)
 
-            for i,(pixels, exposure) in \
-                enumerate(zip(scatt_map.contents.coords.transpose(),
-                              scatt_map.contents.data * scatt_map.unit)):
+            psr_axes = self._rest_axes
 
-                att = Attitude.from_axes(x = scatt_map.axes['x'].pix2skycoord(pixels[0]),
-                                         y = scatt_map.axes['y'].pix2skycoord(pixels[1]))
+            # copy PsiChi axis to use for output (inertial) frame
+            ics_psichi_axis = self._axes['PsiChi'].copy()
+            ics_psichi_axis.coordsys = coord.frame
 
-                coord.attitude = att
+            # copy PsiChi axis to use for local (spacecraft) frame
+            loc_psichi_axis = self._axes['PsiChi'].copy()
 
-                #TODO: Change this to interpolation
-                loc_nulambda_pixels = np.array(self._axes['NuLambda'].find_bin(coord),
-                                               ndmin = 1)
+            # directions corresponding to each pixel on inertial PsiChi axis
+            ics_pixel_dirs = ics_psichi_axis.pix2skycoord(np.arange(ics_psichi_axis.nbins))
 
-                dr_pix = Histogram.concatenate(coords_axis, [self.get_pixel(i) for i in loc_nulambda_pixels])
+            if has_pol:
+                # angles corresponding to each bin on inertial Pol axis
+                ics_bin_angles = PolarizationAngle(psr_axes['Pol'].centers.to(u.deg, copy=False),
+                                                   coord.transform_to('icrs'),
+                                                   convention=IAUPolarizationConvention())
 
-                dr_pix.axes['PsiChi'].coordsys = SpacecraftFrame(attitude = att)
 
-                self._sum_rot_hist(dr_pix, psrs, exposure, coord, self.pa_convention)
+            # output PS arrays
+            psrs = [ np.zeros(psr_axes.shape, dtype=self.dtype) for i in range(coord.size) ]
 
-            # Convert to tuple of PSRs for each bin of coords axis
-            psr = tuple(PointSourceResponse(psrs.axes[1:],
-                                            contents = data,
-                                            unit = psrs.unit,
-                                            copy_contents = False)
-                        for data in psrs.contents)
+            for (x_dir, y_dir), exposure in \
+                zip(scatt_map.contents.coords.transpose(),
+                    scatt_map.contents.data):
 
-            if coord.size == 1:
-                return psr[0]
-            else:
-                return psr
+                att = Attitude.from_axes(x = scatt_map.axes['x'].pix2skycoord(x_dir),
+                                         y = scatt_map.axes['y'].pix2skycoord(y_dir))
 
-    def _setup_extended_source_response_params(self, coordsys, nside_image, nside_scatt_map):
+                # TODO interpolate rather than binning coord
+                coord.attitude = att # specify attitude of spacecraftframe
+                coord_pixels = self._axes['NuLambda'].find_bin(coord)
+
+                loc_psichi_axis.coordsys = SpacecraftFrame(attitude = att)
+
+                for i, p in enumerate(coord_pixels): # for each source coordinate
+
+                    # retrieve local-frame PSR for this pixel,
+                    # weighted by exposure time
+                    psr_loc = self._get_pixel_raw(p, weight=exposure)
+
+                    # rotate local-frame PSR into inertial frame and
+                    # add to inertial-frame PSR
+                    if has_pol:
+                        self._add_rot_psr_pol(psrs[i], psr_loc, psr_axes,
+                                              loc_psichi_axis, ics_pixel_dirs,
+                                              ics_bin_angles)
+                    else:
+                        self._add_rot_psr(psrs[i], psr_loc, psr_axes,
+                                          loc_psichi_axis, ics_pixel_dirs)
+
+            # Make sure PsiChi axis of result uses inertial frame
+            psr_axes.set('PsiChi', ics_psichi_axis)
+            results = tuple( PointSourceResponse(psr_axes,
+                                                 contents = psr,
+                                                 unit = self._unit * scatt_map.unit,
+                                                 copy_contents = False)
+                             for psr in psrs )
+
+            return results[0] if len(results) == 1 else results
+
+
+    def _add_rot_psr(self, psr_ics, psr_loc,
+                     axes, loc_psichi_axis,
+                     ics_pixel_dirs):
         """
-        Validate coordinate system and setup NSIDE parameters for extended source response generation.
+        Rotate a local-frame PSR into the inertial frame and add it to
+        an accumulator psr_ics.
+
+        Parameters
+        ----------
+        psr_ics : ndarray
+            inertial-frame PSR that accumulates results
+        psr_loc : ndarray
+            local-frame PSR to rotate and add to dst
+        axes : Axes
+            axes of PSR
+        loc_psichi_axis : HealpixAxis
+            PsiChi axis for PSR, for converting directions from local to
+            inertial
+        ics_pixel_dirs : SkyCoord array
+            directions associated with center of each PsiChi pixel in
+            inertial frame
+
+        """
+
+        aid_psichi = axes.label_to_index('PsiChi')
+
+        # Rotate each ics map pixel's direction into its corresponding
+        # pixel in loc map; the loc_psichi_axis knows the spacecraft
+        # attitude and does the rotation prior to binning.
+        #
+        # (this could be interpolated to map each ics pixel to
+        # multiple loc pixels + weights)
+        loc_pixels = loc_psichi_axis.find_bin(ics_pixel_dirs)
+
+        psr_ics += psr_loc.take(loc_pixels, axis=aid_psichi)
+
+
+    def _add_rot_psr_pol(self, psr_ics, psr_loc,
+                         axes, loc_psichi_axis,
+                         ics_pixel_dirs, ics_pol_angles):
+        """
+        Rotate a local-frame polarization PSR into the inertial frame and
+        add it to an accumulator psr_ics.  We must rotate both the
+        PsiChi axis and the polarization angle axis.
+
+        Parameters
+        ----------
+        psr_ics : ndarray
+            inertial-frame PSR that accumulates results
+        psr_loc : ndarray
+            local-frame PSR to rotate and add to dst
+        axes : Axes
+            axes of PSR
+        loc_psichi_axis : HealpixAxis
+            PsiChi axis for PSR, for converting directions from
+            local to inertial
+        ics_pixel_dirs : SkyCoord array
+            directions associated with center of each PsiChi pixel
+            in inertial frame
+        ics_pol_angles : PolarizationAngle array
+            polarization angles associated with center of each Pol
+            bin in inertial frame
+
+        """
+
+        aid_psichi = axes.label_to_index('PsiChi')
+        aid_pol    = axes.label_to_index('Pol')
+
+        # Rotate each ics map pixel's direction into its corresponding
+        # pixel in loc map; the loc_psichi_axis knows the spacecraft
+        # attitude and does the rotation prior to binning.
+        #
+        # (this could be interpolated to map each ics pixel to
+        # multiple loc pixels + weights)
+        loc_pixels = loc_psichi_axis.find_bin(ics_pixel_dirs)
+
+        # Rotate each polarization angle bin in inertial frame to
+        # nearest bin in local frame (this could also be interpolated)
+        loc_pol_angles = ics_pol_angles.transform_to(self.pa_convention,
+                                                     loc_psichi_axis.coordsys.attitude)
+
+        # wrap 180-degree polarization angles to keep them within bin range
+        la = loc_pol_angles.angle.deg
+        la = np.where(la == 180., 0. , la)
+        la = Quantity(la, unit=u.deg, copy=False)
+
+        loc_pol_bins = axes[aid_pol].find_bin(la)
+
+        psr_ics += psr_loc.take(loc_pixels,
+                                axis=aid_psichi).take(loc_pol_bins,
+                                                      axis=aid_pol)
+
+
+    def _setup_esr_params(self, coordsys, nside_image, nside_scatt_map):
+        """
+        Validate coordinate system and setup NSIDE parameters for extended
+        source response generation.
 
         Parameters
         ----------
         coordsys : str
-            Coordinate system to be used (currently only 'galactic' is supported)
+            Coordinate system to be used (currently only 'galactic'
+            is supported)
         nside_image : int or None
             NSIDE parameter for the image reconstruction.
             If None, uses the full detector response's NSIDE.
@@ -466,10 +644,12 @@ class FullDetectorResponse(HealpixBase):
         Returns
         -------
         tuple
-            (coordsys, nside_image, nside_scatt_map) : validated parameters
+            (nside_image, nside_scatt_map) : validated/defaulted parameters
+
         """
+
         if coordsys != 'galactic':
-            raise ValueError(f'The coordsys {coordsys} not currently supported')
+            raise ValueError(f'Coordsys {coordsys} is not currently supported')
 
         if nside_image is None:
             nside_image = self.nside
@@ -477,13 +657,63 @@ class FullDetectorResponse(HealpixBase):
         if nside_scatt_map is None:
             nside_scatt_map = self.nside
 
-        return coordsys, nside_image, nside_scatt_map
+        return nside_image, nside_scatt_map
 
-    def get_point_source_response_per_image_pixel(self, ipix_image, orientation, coordsys = 'galactic',
-                                                  nside_image = None, nside_scatt_map = None, Earth_occ = True):
+
+    def _get_psr_for_image_pixel(self, ipix, hpbase, orientation, nside_scatt_map, Earth_occ = True):
         """
-        Generate point source response for a specific HEALPix pixel by convolving
-        the all-sky detector response with exposure.
+        Generate a PSR for one pixel of a sky map whose resolution and
+        coordinate frame is specified by the HealpixBase object
+        hpbase.  Use the scatt_map method to compute exposure,
+        constructing a scatt_map of specified resolution from the
+        supplied orientation data.
+
+        Parameters
+        ----------
+        ipix: int
+            HEALPix pixel index
+        hpbase : HealpixBase
+            HEALPixBase object describing size and frame of the map
+            containing the pixel for which we're building the PSR
+        orientation : cosipy.spacecraftfile.SpacecraftFile
+            Spacecraft attitude information
+        nside_scatt_map : int
+            NSIDE parameter for scatt map generation.
+            If None, uses the detector response's NSIDE.
+        Earth_occ : bool, default True
+            Whether to include Earth occultation in the response
+
+        Returns
+        -------
+        :py:class:`PointSourceResponse`
+            Point source response for the specified pixel
+
+        """
+
+        coord = hpbase.pix2skycoord(ipix)
+
+        scatt_map = orientation.get_scatt_map(nside = nside_scatt_map,
+                                              target_coord = coord,
+                                              scheme = 'ring',
+                                              coordsys = hpbase.coordsys,
+                                              earth_occ = Earth_occ)
+
+        psr = self.get_point_source_response(coord = coord,
+                                             scatt_map = scatt_map,
+                                             Earth_occ = Earth_occ)
+
+        return psr
+
+
+    def get_point_source_response_per_image_pixel(self, ipix, orientation, coordsys = 'galactic',
+                                                  nside_image = None, nside_scatt_map = None,
+                                                  Earth_occ = True):
+        """
+        Generate a PSR for one pixel of a sky map whose resolution and
+        coordinate frame are specified explicitly, or taken from the FDR
+        if not given.  Use the scatt_map method to compute exposure,
+        constructing a scatt_map of specified resolution from the
+        supplied orientation data.
 
         Parameters
         ----------
@@ -507,26 +737,23 @@ class FullDetectorResponse(HealpixBase):
         :py:class:`PointSourceResponse`
             Point source response for the specified pixel
         """
-        coordsys, nside_image, nside_scatt_map = self._setup_extended_source_response_params(coordsys, nside_image, nside_scatt_map)
+        nside_image, nside_scatt_map = self._setup_esr_params(coordsys, nside_image, nside_scatt_map)
 
-        image_axes = HealpixAxis(nside = nside_image, coordsys = coordsys, scheme='ring', label = 'NuLambda') # The label should be 'lb' in the future
+        hpbase = HealpixBase(nside = nside_image, coordsys = coordsys, scheme='ring')
 
-        coord = image_axes.pix2skycoord(ipix_image)
+        return self._get_psr_for_image_pixel(ipix, hpbase, orientation, nside_scatt_map, Earth_occ)
 
-        scatt_map = orientation.get_scatt_map(nside = nside_scatt_map,
-                                              target_coord = coord,
-                                              scheme='ring',
-                                              coordsys=coordsys,
-                                              earth_occ=Earth_occ)
 
-        psr = self.get_point_source_response(coord = coord, scatt_map = scatt_map, Earth_occ = Earth_occ)
-
-        return psr
-
-    def get_extended_source_response(self, orientation, coordsys = 'galactic', nside_image = None, nside_scatt_map = None, Earth_occ = True):
+    def get_extended_source_response(self, orientation, coordsys = 'galactic',
+                                     nside_image = None, nside_scatt_map = None,
+                                     Earth_occ = True):
         """
-        Generate extended source response by convolving the all-sky detector
-        response with exposure over the entire sky.
+        Generate an extended source response by combining PSRs for all
+        pixels of a sky map whose resolution and coordinate frame are
+        specified explicitly, or taken from the FDR if not given.  Use
+        the scatt_map method to compute exposure, constructing a
+        scatt_map of specified resolution from the supplied
+        orientation data.
 
         Parameters
         ----------
@@ -535,7 +762,7 @@ class FullDetectorResponse(HealpixBase):
         coordsys : str, default 'galactic'
             Coordinate system (currently only 'galactic' is supported)
         nside_image : int, optional
-            NSIDE parameter for image reconstruction.
+            NSIDE parameter for output extended response
             If None, uses the detector response's NSIDE.
         nside_scatt_map : int, optional
             NSIDE parameter for scatt map generation.
@@ -546,161 +773,118 @@ class FullDetectorResponse(HealpixBase):
         Returns
         -------
         :py:class:`ExtendedSourceResponse`
-            Extended source response covering the entire sky
+            Extended source response covering all pixels in a map
+            of resolution nside_image
+
         """
-        coordsys, nside_image, nside_scatt_map = self._setup_extended_source_response_params(coordsys, nside_image, nside_scatt_map)
 
-        axes = [HealpixAxis(nside = nside_image, coordsys = coordsys, scheme='ring', label = 'NuLambda')] # The label should be 'lb' in the future
-        axes += list(self._axes[1:])
-        axes[-1].coordsys = coordsys
+        from tqdm.autonotebook import tqdm
 
-        extended_source_response = ExtendedSourceResponse(axes, unit = u.Unit("cm2 s"))
+        nside_image, nside_scatt_map = self._setup_esr_params(coordsys, nside_image, nside_scatt_map)
 
-        for ipix in tqdm(range(hp.nside2npix(nside_image))):
+        # This axis label should be 'lb' in the future
+        pixel_axis = HealpixAxis(nside = nside_image, coordsys = coordsys, scheme='ring', label = 'NuLambda')
 
-            psr = self.get_point_source_response_per_image_pixel(ipix, orientation, coordsys = coordsys,
-                                                                 nside_image = nside_image, nside_scatt_map = nside_scatt_map, Earth_occ = Earth_occ)
+        esr = np.empty((pixel_axis.nbins,) + self._rest_axes.shape, dtype=self.dtype)
 
-            extended_source_response[ipix] = psr.contents
+        for ipix in tqdm(range(pixel_axis.npix)):
+            psr = self._get_psr_for_image_pixel(ipix, pixel_axis,
+                                                orientation, nside_scatt_map,
+                                                Earth_occ)
+            esr[ipix] = psr.contents.value
 
-        return extended_source_response
+        axes = Axes([pixel_axis] + list(psr.axes), copy_axes=False)
+        return ExtendedSourceResponse(axes, contents = esr,
+                                      unit = psr.unit,
+                                      copy_contents = False)
 
-    def merge_psr_to_extended_source_response(self, basename, coordsys = 'galactic', nside_image = None):
+
+    @staticmethod
+    def merge_psr_to_extended_source_response(basepath, coordsys = 'galactic', nside_image = None):
         """
-        Create extended source response by merging multiple point source responses.
+        Combine a set of PSRs stored in files into one extended source
+        response.  Infer the size of the ESR's sky map from the number of
+        files to be read, and the pixel ID for each file by parsing its name.
 
-        Reads point source response files matching the pattern `basename` + index + file_extension.
-        For example, with basename='histograms/hist_', filenames are expected to be like 'histograms/hist_00001.hdf5'.
+        The names of the component PSR files are assumed to be of the
+        form `basepath` + index + file_extension.  For example, with
+        basepath='histograms/hist_', filenames are expected to be
+        'histograms/hist_<int>.<ext>' (for example,
+        'histograms/hist_00001.h5').
+
+        Note that nside_image, if specified, must correspond to the number
+        of pixels read; otherwise, an exception is raised. The individual
+        PSRS must have the same axes (including the coordinate system for
+        the PsiChi dimension) and must have compatible units.
 
         Parameters
         ----------
-        basename : str
+        basepath : str
             Base filename pattern for point source response files
         coordsys : str, default 'galactic'
             Coordinate system (currently only 'galactic' is supported)
         nside_image : int, optional
-            NSIDE parameter for image reconstruction.
-            If None, uses the detector response's NSIDE.
+            NSIDE parameter for image reconstruction (must match
+            number of PSRs to combine) If None, infer from number of
+            PSRS to combine
 
         Returns
         -------
         :py:class:`ExtendedSourceResponse`
-            Combined extended source response
+            Combined extended source response. The unit will be that
+            of the PSR with the lexicographically least filename.
+
         """
-        coordsys, nside_image, _ = self._setup_extended_source_response_params(coordsys, nside_image, None)
 
-        psr_files = glob.glob(basename + "*")
+        import mhealpy as hp
 
-        if not psr_files:
+        if coordsys != 'galactic':
+            raise ValueError("Only galactic coordinates are supported for output ESR")
+
+        # get list of PSRs to merge
+        basepath = Path(basepath)
+        basename = basepath.name
+        psr_files = sorted(basepath.parent.glob(basename + "*"))
+
+        npix = len(psr_files)
+        if npix == 0:
             raise FileNotFoundError(f"No files found matching pattern {basename}*")
+        else:
+            try:
+                nside = hp.npix2nside(npix)
+            except:
+                raise RuntimeError(f"Number of input PSRs {npix} does not correspond to a valid nside")
 
-        axes = [HealpixAxis(nside = nside_image, coordsys = coordsys, scheme='ring', label = 'NuLambda')] # The label should be 'lb' in the future
-        axes += list(self._axes[1:])
-        axes[-1].coordsys = coordsys
+            if nside_image is not None and nside_image != nside:
+                raise RuntimeError(f"Number of input PSRs {npix} does not correspond to nside {nside}")
 
-        extended_source_response = ExtendedSourceResponse(axes, unit = u.Unit("cm2 s"))
+        # All component PSRs must have same axes and unit; get them here
+        psr = PointSourceResponse.open(psr_files[0])
+        psr_axes = psr.axes
+        psr_unit = psr.unit
 
-        filled_pixels = []
+        esr = np.empty((npix,) + psr_axes.shape, dtype = psr.dtype)
+        for psr_file in psr_files:
 
-        for filename in psr_files:
+            ipix = int(psr_file.stem[len(basename):])
 
-            ipix = int(filename[len(basename):].split(".")[0])
+            psr = PointSourceResponse.open(psr_file)
 
-            psr = Histogram.open(filename)
+            # make sure all PSRs have same axes (includng coord frame) and unit
+            if psr.axes != psr_axes:
+                raise ValueError(f"Axes of PSR '{psr_file}' do not match those of other PSRs")
+            elif not psr.unit.is_equivalent(psr_unit):
+                raise ValueError(f"Unit of PSR '{psr_file}' is not compatible with unit of other PSRs")
 
-            extended_source_response[ipix] = psr.contents
+            esr[ipix] = psr.contents.to_value(psr_unit) # make sure units of all PSRs conform
 
-            filled_pixels.append(ipix)
+        # This axis label should be 'lb' in the future
+        pixel_axis = HealpixAxis(nside = nside, coordsys = coordsys, scheme='ring', label = 'NuLambda')
 
-        expected_pixels = set(range(extended_source_response.axes[0].npix))
-        if set(filled_pixels) != expected_pixels:
-            raise ValueError(f"Missing pixels in the response files. Expected {extended_source_response.axes[0].npix} pixels, got {len(filled_pixels)} pixels")
-
-        return extended_source_response
-
-    @staticmethod
-    def _sum_rot_hist(h, h_new, exposure, coord, pa_convention, axis = "PsiChi"):
-        """
-        Rotate a histogram with HealpixAxis h into the grid of h_new, and sum
-        it up with the weight of exposure.
-
-        Meant to rotate the PsiChi of a CDS from local to galactic
-        """
-
-        axis_id = h.axes.label_to_index(axis)
-
-        old_axis = h.axes[axis_id]
-        new_axis = h_new.axes[axis_id]
-
-        # Convolve
-        # TODO: Change this to interpolation (pixels + weights)
-        old_pixels = old_axis.find_bin(new_axis.pix2skycoord(np.arange(new_axis.nbins)))
-
-        if 'Pol' in h.axes.labels and h_new.axes[axis].coordsys.name != 'spacecraftframe':
-
-            if coord.size > 1:
-                raise ValueError("For polarization, only a single source coordinate is supported")
-
-            from cosipy.polarization.polarization_angle import PolarizationAngle
-            from cosipy.polarization.conventions import IAUPolarizationConvention
-
-            pol_axis_id = h.axes.label_to_index('Pol')
-
-            old_pol_axis = h.axes[pol_axis_id]
-            new_pol_axis = h_new.axes[pol_axis_id]
-
-            old_pol_indices = []
-            for i in range(h_new.axes['Pol'].nbins):
-
-                pa = PolarizationAngle(h_new.axes['Pol'].centers.to_value(u.deg)[i] * u.deg, coord.transform_to('icrs'), convention=IAUPolarizationConvention())
-                pa_old = pa.transform_to(pa_convention, attitude=coord.attitude)
-
-                if pa_old.angle.deg == 180.:
-                    pa_old = PolarizationAngle(0. * u.deg, coord, convention=IAUPolarizationConvention())
-
-                old_pol_indices.append(old_pol_axis.find_bin(pa_old.angle))
-
-            old_pol_indices = np.array(old_pol_indices)
-
-        # NOTE: there are some pixels that are duplicated, since the center 2 pixels
-        # of the original grid can land within the boundaries of a single pixel
-        # of the target grid. The following commented code fixes this, but it's slow, and
-        # the effect is very small, so maybe not worth it
-        # nulambda_npix = h.axes['NuLamnda'].nbins
-        # new_norm = np.zeros(shape = nulambda_npix)
-        # for p in old_pixels:
-        #     h_slice = h[{axis:p}]
-        #     norm_rot += np.sum(h_slice, axis = tuple(np.arange(1, h_slice.ndim)))
-        # old_norm = np.sum(h, axis = tuple(np.arange(1, h.ndim)))
-        # norm_corr = h.expand_dims(norm / norm_rot, "NuLambda")
-
-        for old_pix,new_pix in zip(old_pixels,range(new_axis.npix)):
-
-            #h_new[{axis:new_pix}] += exposure * h[{axis: old_pix}] # * norm_corr
-            # The following code does the same than the code above, but is faster
-
-            if not 'Pol' in h.axes.labels:
-
-                old_index = (slice(None),)*axis_id + (old_pix,)
-                new_index = (slice(None),)*axis_id + (new_pix,)
-
-                h_new[new_index] += exposure * h[old_index] # * norm_corr
-
-            else:
-
-                for old_pol_bin,new_pol_bin in zip(old_pol_indices,range(new_pol_axis.nbins)):
-
-                    if pol_axis_id < axis_id:
-
-                        old_index = (slice(None),)*pol_axis_id + (old_pol_bin,) + (slice(None),)*(axis_id-pol_axis_id-1) + (old_pix,)
-                        new_index = (slice(None),)*pol_axis_id + (new_pol_bin,) + (slice(None),)*(axis_id-pol_axis_id-1) + (new_pix,)
-
-                    else:
-
-                        old_index = (slice(None),)*axis_id + (old_pix,) + (slice(None),)*(pol_axis_id-axis_id-1) + (old_pol_bin,)
-                        new_index = (slice(None),)*axis_id + (new_pix,) + (slice(None),)*(pol_axis_id-axis_id-1) + (new_pol_bin,)
-
-                    h_new[new_index] += exposure * h[old_index] # * norm_corr
+        axes = Axes([pixel_axis] + list(psr_axes), copy_axes=False)
+        return ExtendedSourceResponse(axes, contents = esr,
+                                      unit = psr_unit,
+                                      copy_contents = False)
 
 
     def __str__(self):
@@ -750,6 +934,8 @@ def cosi_response(argv=None):
     import textwrap
     from yayc import Configurator
     import matplotlib.pyplot as plt
+    from mhealpy import HealpixMap
+    from astropy.coordinates import SkyCoord
 
     # Parse arguments from commandline
     apar = argparse.ArgumentParser(
@@ -819,6 +1005,9 @@ def cosi_response(argv=None):
             return response.get_interp_response(loc)
 
         def get_expectation():
+
+            from astromodels.core.model_parser import ModelParser
+            from astropy.time import Time
 
             # Exposure map
             exposure_map = HealpixMap(base=response,
