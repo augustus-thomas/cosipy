@@ -487,39 +487,35 @@ class FullDetectorResponse(HealpixBase):
                                                    coord.transform_to('icrs'),
                                                    convention=IAUPolarizationConvention())
 
-
             # output PS arrays
             psrs = [ np.zeros(psr_axes.shape, dtype=self.dtype) for i in range(coord.size) ]
 
-            for (x_dir, y_dir), exposure in \
-                zip(scatt_map.contents.coords.transpose(),
-                    scatt_map.contents.data):
-
-                att = Attitude.from_axes(x = scatt_map.axes['x'].pix2skycoord(x_dir),
-                                         y = scatt_map.axes['y'].pix2skycoord(y_dir))
-
+            if scatt_map.contents.nnz > 0:
+                dirs_x, dirs_y = scatt_map.contents.coords
+                attitudes = Attitude.from_axes(x = scatt_map.axes['x'].pix2skycoord(dirs_x),
+                                               y = scatt_map.axes['y'].pix2skycoord(dirs_y))
+            else:
+                attitudes = np.array([]) # no data in scatt_map
+                
+            for att, exposure in zip(attitudes, scatt_map.contents.data):
+                
                 # TODO interpolate rather than binning coord
                 coord.attitude = att # specify attitude of spacecraftframe
                 coord_pixels = self._axes['NuLambda'].find_bin(coord)
-
+                
                 loc_psichi_axis.coordsys = SpacecraftFrame(attitude = att)
-
-                for i, p in enumerate(coord_pixels): # for each source coordinate
-
-                    # retrieve local-frame PSR for this pixel,
-                    # weighted by exposure time
-                    psr_loc = self._get_pixel_raw(p, weight=exposure)
-
-                    # rotate local-frame PSR into inertial frame and
-                    # add to inertial-frame PSR
-                    if has_pol:
-                        self._add_rot_psr_pol(psrs[i], psr_loc, psr_axes,
-                                              loc_psichi_axis, ics_pixel_dirs,
-                                              ics_bin_angles)
-                    else:
-                        self._add_rot_psr(psrs[i], psr_loc, psr_axes,
-                                          loc_psichi_axis, ics_pixel_dirs)
-
+                
+                # rotate local-frame PSRs into inertial frame and
+                # add to inertial-frame PSRs
+                if has_pol:
+                    self._add_rot_psrs_pol(psr_axes, loc_psichi_axis, exposure,
+                                           ics_pixel_dirs, ics_bin_angles,
+                                           coord_pixels, psrs)
+                else:
+                    self._add_rot_psrs(psr_axes, loc_psichi_axis, exposure,
+                                       ics_pixel_dirs,
+                                       coord_pixels, psrs)
+                        
             # Make sure PsiChi axis of result uses inertial frame
             psr_axes.set('PsiChi', ics_psichi_axis)
             results = tuple( PointSourceResponse(psr_axes,
@@ -527,23 +523,20 @@ class FullDetectorResponse(HealpixBase):
                                                  unit = self._unit * scatt_map.unit,
                                                  copy_contents = False)
                              for psr in psrs )
-
+                
             return results[0] if len(results) == 1 else results
 
 
-    def _add_rot_psr(self, psr_ics, psr_loc,
-                     axes, loc_psichi_axis,
-                     ics_pixel_dirs):
+    def _add_rot_psrs(self, axes, loc_psichi_axis, exposure,
+                      ics_pixel_dirs,
+                      src_pixels, psrs_ics):
         """
-        Rotate a local-frame PSR into the inertial frame and add it to
-        an accumulator psr_ics.
+        For each pixel p in src_pixels, rotate the local-frame PSR
+        for a source at p into the inertial frame and add it to
+        the corresponding accumulator in the list psrs_ics.
 
         Parameters
         ----------
-        psr_ics : ndarray
-            inertial-frame PSR that accumulates results
-        psr_loc : ndarray
-            local-frame PSR to rotate and add to dst
         axes : Axes
             axes of PSR
         loc_psichi_axis : HealpixAxis
@@ -552,7 +545,15 @@ class FullDetectorResponse(HealpixBase):
         ics_pixel_dirs : SkyCoord array
             directions associated with center of each PsiChi pixel in
             inertial frame
-
+        exposure : float
+            exposure weighting common to all local-frame PSRs
+        src_pixels : ndarray
+            local-frame pixel whose PSR slice that contributes to each 
+            psr in psrs_ics
+        psrs_ics : ndarray
+            inertial-frame PSRs that accumulate results for each 
+            local-frame pixel
+        
         """
 
         aid_psichi = axes.label_to_index('PsiChi')
@@ -565,23 +566,26 @@ class FullDetectorResponse(HealpixBase):
         # multiple loc pixels + weights)
         loc_pixels = loc_psichi_axis.find_bin(ics_pixel_dirs)
 
-        psr_ics += psr_loc.take(loc_pixels, axis=aid_psichi)
+        for psr_ics, p in zip(psrs_ics, src_pixels):
+            
+            # retrieve local-frame PSR for this pixel,
+            # weighted by exposure time
+            psr_loc = self._get_pixel_raw(p, weight=exposure)
+ 
+            psr_ics += psr_loc.take(loc_pixels, axis=aid_psichi)
 
 
-    def _add_rot_psr_pol(self, psr_ics, psr_loc,
-                         axes, loc_psichi_axis,
-                         ics_pixel_dirs, ics_pol_angles):
+    def _add_rot_psrs_pol(self, axes, loc_psichi_axis, exposure,
+                          ics_pixel_dirs, ics_pol_angles,
+                          src_pixels, psrs_ics):       
         """
-        Rotate a local-frame polarization PSR into the inertial frame and
-        add it to an accumulator psr_ics.  We must rotate both the
-        PsiChi axis and the polarization angle axis.
+        For each pixel p in src_pixels, rotate the local-frame
+        polarization PSR for a source at p into the inertial frame and
+        add it to the corresponding accumulator in the list psrs_ics.
+        We must rotate both the PsiChi axis and the polarization angle axis.
 
         Parameters
         ----------
-        psr_ics : ndarray
-            inertial-frame PSR that accumulates results
-        psr_loc : ndarray
-            local-frame PSR to rotate and add to dst
         axes : Axes
             axes of PSR
         loc_psichi_axis : HealpixAxis
@@ -593,7 +597,13 @@ class FullDetectorResponse(HealpixBase):
         ics_pol_angles : PolarizationAngle array
             polarization angles associated with center of each Pol
             bin in inertial frame
-
+        src_pixels : ndarray
+            local-frame pixel whose PSR slice that contributes to each 
+            psr in psrs_ics
+        psrs_ics : ndarray
+            inertial-frame PSRs that accumulate results for each 
+            local-frame pixel
+        
         """
 
         aid_psichi = axes.label_to_index('PsiChi')
@@ -619,9 +629,15 @@ class FullDetectorResponse(HealpixBase):
 
         loc_pol_bins = axes[aid_pol].find_bin(la)
 
-        psr_ics += psr_loc.take(loc_pixels,
-                                axis=aid_psichi).take(loc_pol_bins,
-                                                      axis=aid_pol)
+        for psr_ics, p in zip(psrs_ics, src_pixels):
+            
+            # retrieve local-frame PSR for this pixel,
+            # weighted by exposure time
+            psr_loc = self._get_pixel_raw(p, weight=exposure)
+
+            psr_ics += psr_loc.take(loc_pixels,
+                                    axis=aid_psichi).take(loc_pol_bins,
+                                                          axis=aid_pol)
 
 
     def _setup_esr_params(self, coordsys, nside_image, nside_scatt_map):
