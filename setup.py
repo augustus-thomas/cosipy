@@ -22,7 +22,7 @@ setup(name='cosipy',
       author_email='imc@umd.edu',
       url='https://github.com/cositools/cosipy',
       packages = find_packages(include=["cosipy", "cosipy.*"]),
-      install_requires = ['histpy>=2.0',
+      install_requires = ['histpy>=2.0.3',
                           'h5py',
                           'hdf5plugin',
                           'mhealpy',
@@ -44,4 +44,3 @@ setup(name='cosipy',
       long_description = long_description,
       long_description_content_type="text/markdown",
       )
-
