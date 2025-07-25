@@ -7,6 +7,7 @@ import hdf5plugin
 
 from astropy.units import Quantity
 import astropy.units as u
+from astropy.coordinates import SkyCoord
 
 from scoords import SpacecraftFrame, Attitude
 
@@ -27,9 +28,10 @@ class FullDetectorResponse(HealpixBase):
     Handles the multi-dimensional matrix that describes the
     full all-sky response of the instrument.
 
-    You can access the :py:class:`DetectorResponse` at a given pixel using the ``[]``
-    operator. Alternatively you can obtain the interpolated reponse using
-    :py:func:`get_interp_response`.
+    You can access the :py:class:`DetectorResponse` at a given pixel
+    using the ``[]`` operator. Alternatively you can obtain the
+    interpolated reponse using :py:func:`get_interp_response`.
+
     """
 
     # supported HDF5 response version
@@ -120,7 +122,8 @@ class FullDetectorResponse(HealpixBase):
 
         new.pa_convention = pa_convention
         if 'Pol' in new._axes.labels and pa_convention not in ('RelativeX', 'RelativeY', 'RelativeZ'):
-            raise RuntimeError("Polarization angle convention of response ('RelativeX', 'RelativeY', or 'RelativeZ') must be provided")
+            raise RuntimeError("Polarization angle convention of response "
+                               "('RelativeX', 'RelativeY', or 'RelativeZ') must be provided")
 
         return new
 
@@ -399,7 +402,7 @@ class FullDetectorResponse(HealpixBase):
         weighting of each time bin accounts for earth occultation.  If
         so, then the scatt_map is dependent on the source coordinate,
         and the same (single) coordinate must be passed as an
-        argument.  If earth occultation was not ocnsidered, the
+        argument.  If earth occultation was not considered, the
         scatt_map is independent of the source coordinate and may be
         used to compute PSRs for many source coordinates at once;
         however, not considering earth occultation results in a
@@ -411,26 +414,26 @@ class FullDetectorResponse(HealpixBase):
             Effective time spent by the source at each pixel location
             in spacecraft coordinates
         coord : :py:class:`astropy.coordinates.SkyCoord`
-            Source coordinate for which we want to generate a PSR
+            Source coordinate(s) for which we want to generate a PSR
         scatt_map : :py:class:`SpacecraftAttitudeMap`
             Spacecraft attitude map used to calculate source path over
             time in spacecraft coordinates
         Earth_occ : bool, optional
             Option to include Earth occultation in the response
-            (scatt_map mode only).  If True (the default), only one
+            (scatt_map mode only). If True (the default), only one
             source coordinate may be provided, which must be the same
             as the one used to create the scatt_map.
 
         Returns
         -------
         :py:class:`PointSourceResponse` or tuple of same
-            Inertial-frame point-source response for each source coordinate;
-            tuple if more than one coordinate provided
+            Inertial-frame point-source response for each source
+            coordinate; tuple if more than one coordinate provided
 
         """
 
-        # TODO: deprecate exposure_map in favor of coords + scatt map for both local
-        # and inertial coords
+        # TODO: deprecate exposure_map in favor of coords + scatt map
+        # for both local and inertial coords
 
         if exposure_map is not None:
 
@@ -451,193 +454,226 @@ class FullDetectorResponse(HealpixBase):
 
         else:
 
-            from cosipy.polarization.polarization_angle import PolarizationAngle
-            from cosipy.polarization.conventions import IAUPolarizationConvention
+            def rotate_coords(c, rot):
+                """
+                Apply a rotation matrix to one or more 3D directions
+                represented as Cartesian 3-vectors.  Return rotated directions
+                in polar form as a pair (co-latitude, longitude) in
+                radians.
 
-            if coord is None or scatt_map is None:
-                raise ValueError("Provide either exposure map or coord + scatt_map")
+                """
+                c_local = rot @ c
 
-            if isinstance(coord.frame, SpacecraftFrame):
+                c_x, c_y, c_z = c_local
+
+                theta = np.arctan2(c_y, c_x)
+                phi = np.arccos(c_z)
+
+                return (phi, theta)
+
+            source = coord
+
+            if source is None or scatt_map is None:
+                raise ValueError("Provide either exposure map or source + scatt_map")
+
+            if isinstance(source.frame, SpacecraftFrame):
                 raise ValueError("scatt_map is not supported for source in local coordinate frame")
 
-            if Earth_occ and coord.size > 1:
-                raise ValueError("For Earth occultation, only one coordinate (the one used to create the scatt map) is allowed")
+            if Earth_occ and source.size > 1:
+                raise ValueError("For Earth occultation, only one source coordinate "
+                                 "(the one used to create the scatt map) is allowed")
 
-            has_pol = ('Pol' in self._axes.labels and coord.frame != 'spacecraftframe')
-            if has_pol and coord.size > 1:
+            has_pol = ('Pol' in self._axes.labels and source.frame != 'spacecraftframe')
+            if has_pol and source.size > 1:
                 raise ValueError("For polarization, only a single source coordinate is supported")
 
-            coord = np.atleast_1d(coord)
+            source = np.atleast_1d(source)
 
             psr_axes = self._rest_axes
 
-            # copy PsiChi axis to use for output (inertial) frame
-            ics_psichi_axis = self._axes['PsiChi'].copy()
-            ics_psichi_axis.coordsys = coord.frame
-
-            # copy PsiChi axis to use for local (spacecraft) frame
-            loc_psichi_axis = self._axes['PsiChi'].copy()
-
-            # directions corresponding to each pixel on inertial PsiChi axis
-            ics_pixel_dirs = ics_psichi_axis.pix2skycoord(np.arange(ics_psichi_axis.nbins))
+            # directions corresponding to each pixel on PsiChi axis
+            # in source's frame
+            sf_psichi_axis = psr_axes['PsiChi'].copy()
+            sf_psichi_axis.coordsys = source.frame
+            sf_pixel_dirs = sf_psichi_axis.pix2skycoord(np.arange(sf_psichi_axis.nbins))
 
             if has_pol:
-                # angles corresponding to each bin on inertial Pol axis
-                ics_bin_angles = PolarizationAngle(psr_axes['Pol'].centers.to(u.deg, copy=False),
-                                                   coord.transform_to('icrs'),
-                                                   convention=IAUPolarizationConvention())
 
-            # output PS arrays
-            psrs = [ np.zeros(psr_axes.shape, dtype=self.dtype) for i in range(coord.size) ]
+                from cosipy.polarization.polarization_angle import PolarizationAngle
+                from cosipy.polarization.conventions import IAUPolarizationConvention
+
+                # angles in IAU convention's frame corresponding to
+                # each bin on Pol axis in source's frame
+                pol_convention = IAUPolarizationConvention()
+                iau_pol_angles = PolarizationAngle(psr_axes['Pol'].centers,
+                                                   source,
+                                                   convention = pol_convention)
+
+            # output PSR accumulators
+            sf_psrs = tuple( np.zeros(psr_axes.shape, dtype=self.dtype)
+                             for i in range(source.size) )
 
             if scatt_map.contents.nnz > 0:
                 dirs_x, dirs_y = scatt_map.contents.coords
                 attitudes = Attitude.from_axes(x = scatt_map.axes['x'].pix2skycoord(dirs_x),
-                                               y = scatt_map.axes['y'].pix2skycoord(dirs_y))
+                                               y = scatt_map.axes['y'].pix2skycoord(dirs_y),
+                                               frame='icrs')
+
+                # rotation is from source frame to local spacecraft
+                # frame in ICRS basis
+                rots = attitudes.rot.inv().as_matrix()
+
+                # prepare cartesian forms of source and pixel dirs for
+                # rotations from source frame to local spacecraft
+                # frames.  Inputs are in ICRS basis to match Attitude
+                src_cart = source.transform_to('icrs').cartesian.xyz.value
+                ics_pixel_dirs_cart = sf_pixel_dirs.transform_to('icrs').cartesian.xyz.value
+
             else:
-                attitudes = np.array([]) # no data in scatt_map
-                
-            for att, exposure in zip(attitudes, scatt_map.contents.data):
-                
-                # TODO interpolate rather than binning coord
-                coord.attitude = att # specify attitude of spacecraftframe
-                coord_pixels = self._axes['NuLambda'].find_bin(coord)
-                
-                loc_psichi_axis.coordsys = SpacecraftFrame(attitude = att)
-                
-                # rotate local-frame PSRs into inertial frame and
-                # add to inertial-frame PSRs
+                # no data in scatt_map
+                attitudes = []
+                rots = []
+
+            for att, rot, exposure in zip(attitudes, rots, scatt_map.contents.data):
+
+                # rotate source dir(s) from source frame to local
+                # spacecraft frame
+                loc_src_colat, loc_src_lon = rotate_coords(src_cart, rot)
+
+                # map each source dir to nearest local-frame pixel
+                # TODO: this could be interpolated to map each dir to
+                # multiple pixels + weights
+                loc_src_pixels = self._axes['NuLambda'].find_bin(theta = loc_src_colat,
+                                                                 phi   = loc_src_lon)
+
+                # rotate pixel dirs from source frame into local
+                # spacecraft frame (NB: result is still in original
+                # basis, i.e., ICRS)
+                pix_colat_local, pix_lon_local = rotate_coords(ics_pixel_dirs_cart, rot)
+
+                # map each local PsiChi pixel dir to nearest HEALPix
+                # pixel. TODO: this could be interpolated to map each
+                # dir to multiple pixels + weights
+                loc_pixels = sf_psichi_axis.find_bin(theta = pix_colat_local,
+                                                     phi   = pix_lon_local)
+
                 if has_pol:
-                    self._add_rot_psrs_pol(psr_axes, loc_psichi_axis, exposure,
-                                           ics_pixel_dirs, ics_bin_angles,
-                                           coord_pixels, psrs)
+
+                    # rotate each bin's polarization angle from IAU to
+                    # local convention
+                    loc_pol_angles = iau_pol_angles.transform_to(self.pa_convention, att)
+
+                    # wrap 180-degree polarization angles to keep them
+                    # within bin range
+                    la = loc_pol_angles.angle
+                    la = np.where(la.deg == 180., 0. * u.deg , la)
+
+                    # map each local-convention Pol bin angle to
+                    # nearest bin (TODO: this could also be
+                    # interpolated)
+                    loc_pol_bins = psr_axes['Pol'].find_bin(la)
+
+                    self._add_rot_psrs_pol(psr_axes, exposure,
+                                           loc_pixels, loc_pol_bins,
+                                           loc_src_pixels, sf_psrs)
                 else:
-                    self._add_rot_psrs(psr_axes, loc_psichi_axis, exposure,
-                                       ics_pixel_dirs,
-                                       coord_pixels, psrs)
-                        
-            # Make sure PsiChi axis of result uses inertial frame
-            psr_axes.set('PsiChi', ics_psichi_axis)
+                    self._add_rot_psrs(psr_axes, exposure,
+                                       loc_pixels,
+                                       loc_src_pixels, sf_psrs)
+
+            # output PSRs are in source frame, so give output PsiChi axis
+            # the right frame.
+            # FIXME: outputs are still in ICRS basis!
+            psr_axes.set('PsiChi', sf_psichi_axis)
+
             results = tuple( PointSourceResponse(psr_axes,
-                                                 contents = psr,
+                                                 contents = sf_psr,
                                                  unit = self._unit * scatt_map.unit,
                                                  copy_contents = False)
-                             for psr in psrs )
-                
+                             for sf_psr in sf_psrs )
+
             return results[0] if len(results) == 1 else results
 
 
-    def _add_rot_psrs(self, axes, loc_psichi_axis, exposure,
-                      ics_pixel_dirs,
-                      src_pixels, psrs_ics):
+    def _add_rot_psrs(self, axes, exposure,
+                      loc_pixels,
+                      loc_src_pixels, sf_psrs):
         """
-        For each pixel p in src_pixels, rotate the local-frame PSR
-        for a source at p into the inertial frame and add it to
-        the corresponding accumulator in the list psrs_ics.
+        For each pixel p in loc_src_pixels, rotate the local-frame PSR
+        for a source at p into the source's frame and add it to the
+        corresponding accumulator in the list sf_psrs.
 
         Parameters
         ----------
         axes : Axes
             axes of PSR
-        loc_psichi_axis : HealpixAxis
-            PsiChi axis for PSR, for converting directions from local to
-            inertial
-        ics_pixel_dirs : SkyCoord array
-            directions associated with center of each PsiChi pixel in
-            inertial frame
         exposure : float
-            exposure weighting common to all local-frame PSRs
-        src_pixels : ndarray
-            local-frame pixel whose PSR slice that contributes to each 
-            psr in psrs_ics
-        psrs_ics : ndarray
-            inertial-frame PSRs that accumulate results for each 
-            local-frame pixel
-        
+            exposure weighting for current local frame
+        loc_pixels : ndarray
+            local-frame pixel corresponding to each source-frame
+            pixel on PSiChi axis
+        loc_src_pixels : ndarray
+            local-frame pixels for one or more source dirs
+        sf_psrs : ndarray [output parameter]
+            source-frame PSRs that accumulate rotated PSR weights
+            for each local-frame source dir
+
         """
 
         aid_psichi = axes.label_to_index('PsiChi')
 
-        # Rotate each ics map pixel's direction into its corresponding
-        # pixel in loc map; the loc_psichi_axis knows the spacecraft
-        # attitude and does the rotation prior to binning.
-        #
-        # (this could be interpolated to map each ics pixel to
-        # multiple loc pixels + weights)
-        loc_pixels = loc_psichi_axis.find_bin(ics_pixel_dirs)
+        for sf_psr, p in zip(sf_psrs, loc_src_pixels):
 
-        for psr_ics, p in zip(psrs_ics, src_pixels):
-            
-            # retrieve local-frame PSR for this pixel,
-            # weighted by exposure time
-            psr_loc = self._get_pixel_raw(p, weight=exposure)
- 
-            psr_ics += psr_loc.take(loc_pixels, axis=aid_psichi)
+            # retrieve local-frame PSR for source pixel,
+            # weighted by exposure of local frame
+            loc_psr = self._get_pixel_raw(p, weight=exposure)
+
+            # rotate local PSR into source frame and add to accumulator
+            sf_psr += loc_psr.take(loc_pixels, axis=aid_psichi)
 
 
-    def _add_rot_psrs_pol(self, axes, loc_psichi_axis, exposure,
-                          ics_pixel_dirs, ics_pol_angles,
-                          src_pixels, psrs_ics):       
+    def _add_rot_psrs_pol(self, axes, exposure,
+                          loc_pixels, loc_pol_bins,
+                          loc_src_pixels, sf_psrs):
         """
-        For each pixel p in src_pixels, rotate the local-frame
-        polarization PSR for a source at p into the inertial frame and
-        add it to the corresponding accumulator in the list psrs_ics.
-        We must rotate both the PsiChi axis and the polarization angle axis.
+        For each pixel p in loc_src_pixels, rotate the local-frame
+        polarization PSR for a source at p into the source's frame and
+        add it to the corresponding accumulator in the list sf_psrs.
+        We must rotate both the PsiChi axis and the polarization angle
+        axis.
 
         Parameters
         ----------
         axes : Axes
             axes of PSR
-        loc_psichi_axis : HealpixAxis
-            PsiChi axis for PSR, for converting directions from
-            local to inertial
-        ics_pixel_dirs : SkyCoord array
-            directions associated with center of each PsiChi pixel
-            in inertial frame
-        ics_pol_angles : PolarizationAngle array
-            polarization angles associated with center of each Pol
-            bin in inertial frame
-        src_pixels : ndarray
-            local-frame pixel whose PSR slice that contributes to each 
-            psr in psrs_ics
-        psrs_ics : ndarray
-            inertial-frame PSRs that accumulate results for each 
-            local-frame pixel
-        
+        exposure : float
+            exposure weighting for current local frame
+        loc_pixels : ndarray
+            local-frame pixel corresponding to each source-frame
+            pixel on PSiChi axis
+        loc_polbins : ndarray
+            local-frame polarization bin corresponding to each
+            source-frame bin on Pol axis
+        loc_src_pixels : ndarray
+            local-frame source pixels
+        sf_psrs : ndarray [output parameter]
+            source-frame PSRs that accumulate rotated PSR weights
+            for each local-frame source pixel
+
         """
 
         aid_psichi = axes.label_to_index('PsiChi')
-        aid_pol    = axes.label_to_index('Pol')
+        aid_pol = axes.label_to_index('Pol')
 
-        # Rotate each ics map pixel's direction into its corresponding
-        # pixel in loc map; the loc_psichi_axis knows the spacecraft
-        # attitude and does the rotation prior to binning.
-        #
-        # (this could be interpolated to map each ics pixel to
-        # multiple loc pixels + weights)
-        loc_pixels = loc_psichi_axis.find_bin(ics_pixel_dirs)
+        for sf_psr, p in zip(sf_psrs, loc_src_pixels):
 
-        # Rotate each polarization angle bin in inertial frame to
-        # nearest bin in local frame (this could also be interpolated)
-        loc_pol_angles = ics_pol_angles.transform_to(self.pa_convention,
-                                                     loc_psichi_axis.coordsys.attitude)
-
-        # wrap 180-degree polarization angles to keep them within bin range
-        la = loc_pol_angles.angle.deg
-        la = np.where(la == 180., 0. , la)
-        la = Quantity(la, unit=u.deg, copy=False)
-
-        loc_pol_bins = axes[aid_pol].find_bin(la)
-
-        for psr_ics, p in zip(psrs_ics, src_pixels):
-            
             # retrieve local-frame PSR for this pixel,
             # weighted by exposure time
             psr_loc = self._get_pixel_raw(p, weight=exposure)
 
-            psr_ics += psr_loc.take(loc_pixels,
-                                    axis=aid_psichi).take(loc_pol_bins,
-                                                          axis=aid_pol)
+            sf_psr += psr_loc.take(loc_pixels,
+                                   axis=aid_psichi).take(loc_pol_bins,
+                                                         axis=aid_pol)
 
 
     def _setup_esr_params(self, coordsys, nside_image, nside_scatt_map):
