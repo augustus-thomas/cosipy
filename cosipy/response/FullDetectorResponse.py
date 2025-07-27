@@ -400,13 +400,13 @@ class FullDetectorResponse(HealpixBase):
 
         If a scatt_map is used, it is important to know whether the
         weighting of each time bin accounts for earth occultation.  If
-        so, then the scatt_map is dependent on the source coordinate,
-        and the same (single) coordinate must be passed as an
-        argument.  If earth occultation was not considered, the
-        scatt_map is independent of the source coordinate and may be
-        used to compute PSRs for many source coordinates at once;
-        however, not considering earth occultation results in a
-        non-physical result.
+        so, then the scatt_map depends on the source coordinate, and
+        the same (single) coordinate must be passed as an argument.
+        If earth occultation was not considered, the scatt_map is
+        independent of the source coordinate and may be used to
+        compute PSRs for many source coordinates at once; however, not
+        considering earth occultation results in a non-physical
+        result.
 
         Parameters
         ----------
@@ -432,7 +432,7 @@ class FullDetectorResponse(HealpixBase):
 
         """
 
-        # TODO: deprecate exposure_map in favor of coords + scatt map
+        # TODO: deprecate exposure_map in favor of source + scatt map
         # for both local and inertial coords
 
         if exposure_map is not None:
@@ -491,11 +491,11 @@ class FullDetectorResponse(HealpixBase):
 
             psr_axes = self._rest_axes
 
-            # directions corresponding to each pixel on PsiChi axis
-            # in source's frame
+            # directions corresponding to center of each HEALPix
+            # pixel on PsiChi axis in source's frame
             sf_psichi_axis = psr_axes['PsiChi'].copy()
             sf_psichi_axis.coordsys = source.frame
-            sf_pixel_dirs = sf_psichi_axis.pix2skycoord(np.arange(sf_psichi_axis.nbins))
+            sf_psichi_dirs = sf_psichi_axis.pix2skycoord(np.arange(sf_psichi_axis.nbins))
 
             if has_pol:
 
@@ -517,20 +517,20 @@ class FullDetectorResponse(HealpixBase):
                 dirs_x, dirs_y = scatt_map.contents.coords
                 attitudes = Attitude.from_axes(x = scatt_map.axes['x'].pix2skycoord(dirs_x),
                                                y = scatt_map.axes['y'].pix2skycoord(dirs_y),
-                                               frame='icrs')
+                                               frame = 'icrs')
 
-                # rotation is from source frame to local spacecraft
-                # frame in ICRS basis
+                # rotation from source frame to local spacecraft
+                # frame in ICRS coordinate system
                 rots = attitudes.rot.inv().as_matrix()
 
-                # prepare cartesian forms of source and pixel dirs for
-                # rotations from source frame to local spacecraft
-                # frames.  Inputs are in ICRS basis to match Attitude
+                # compute cartesian forms of source and PsiChi pixel dirs,
+                # using ICRS coord system to match Attitudes that will be
+                # used to rotate them
                 src_cart = source.transform_to('icrs').cartesian.xyz.value
-                ics_pixel_dirs_cart = sf_pixel_dirs.transform_to('icrs').cartesian.xyz.value
+                sf_psichi_dirs_cart = sf_psichi_dirs.transform_to('icrs').cartesian.xyz.value
 
             else:
-                # no data in scatt_map
+                # scatt_map is empty
                 attitudes = []
                 rots = []
 
@@ -540,22 +540,21 @@ class FullDetectorResponse(HealpixBase):
                 # spacecraft frame
                 loc_src_colat, loc_src_lon = rotate_coords(src_cart, rot)
 
-                # map each source dir to nearest local-frame pixel
-                # TODO: this could be interpolated to map each dir to
-                # multiple pixels + weights
+                # map each source dir in local spacecraft frame to its nearest
+                # HEALPix pixel. TODO: this could be interpolated to map
+                # each dir to multiple pixels + weights
                 loc_src_pixels = self._axes['NuLambda'].find_bin(theta = loc_src_colat,
                                                                  phi   = loc_src_lon)
 
-                # rotate pixel dirs from source frame into local
-                # spacecraft frame (NB: result is still in original
-                # basis, i.e., ICRS)
-                pix_colat_local, pix_lon_local = rotate_coords(ics_pixel_dirs_cart, rot)
+                # rotate PsiChi pixel dirs from source frame into local
+                # spacecraft frame
+                loc_psichi_colat, loc_psichi_lon = rotate_coords(sf_psichi_dirs_cart, rot)
 
-                # map each local PsiChi pixel dir to nearest HEALPix
-                # pixel. TODO: this could be interpolated to map each
-                # dir to multiple pixels + weights
-                loc_pixels = sf_psichi_axis.find_bin(theta = pix_colat_local,
-                                                     phi   = pix_lon_local)
+                # map each local-frame PsiChi pixel dir to its nearest HEALPix
+                # pixel. TODO: this could be interpolated to map each dir to
+                # multiple pixels + weights
+                loc_psichi_pixels = sf_psichi_axis.find_bin(theta = loc_psichi_colat,
+                                                            phi   = loc_psichi_lon)
 
                 if has_pol:
 
@@ -574,16 +573,14 @@ class FullDetectorResponse(HealpixBase):
                     loc_pol_bins = psr_axes['Pol'].find_bin(la)
 
                     self._add_rot_psrs_pol(psr_axes, exposure,
-                                           loc_pixels, loc_pol_bins,
+                                           loc_psichi_pixels, loc_pol_bins,
                                            loc_src_pixels, sf_psrs)
                 else:
                     self._add_rot_psrs(psr_axes, exposure,
-                                       loc_pixels,
+                                       loc_psichi_pixels,
                                        loc_src_pixels, sf_psrs)
 
-            # output PSRs are in source frame, so give output PsiChi axis
-            # the right frame.
-            # FIXME: outputs are still in ICRS basis!
+            # output PSRs for each source dir are in source frame
             psr_axes.set('PsiChi', sf_psichi_axis)
 
             results = tuple( PointSourceResponse(psr_axes,
@@ -596,7 +593,7 @@ class FullDetectorResponse(HealpixBase):
 
 
     def _add_rot_psrs(self, axes, exposure,
-                      loc_pixels,
+                      loc_psichi_pixels,
                       loc_src_pixels, sf_psrs):
         """
         For each pixel p in loc_src_pixels, rotate the local-frame PSR
@@ -609,7 +606,7 @@ class FullDetectorResponse(HealpixBase):
             axes of PSR
         exposure : float
             exposure weighting for current local frame
-        loc_pixels : ndarray
+        loc_psichi_pixels : ndarray
             local-frame pixel corresponding to each source-frame
             pixel on PSiChi axis
         loc_src_pixels : ndarray
@@ -629,11 +626,11 @@ class FullDetectorResponse(HealpixBase):
             loc_psr = self._get_pixel_raw(p, weight=exposure)
 
             # rotate local PSR into source frame and add to accumulator
-            sf_psr += loc_psr.take(loc_pixels, axis=aid_psichi)
+            sf_psr += loc_psr.take(loc_psichi_pixels, axis=aid_psichi)
 
 
     def _add_rot_psrs_pol(self, axes, exposure,
-                          loc_pixels, loc_pol_bins,
+                          loc_psichi_pixels, loc_pol_bins,
                           loc_src_pixels, sf_psrs):
         """
         For each pixel p in loc_src_pixels, rotate the local-frame
@@ -648,10 +645,10 @@ class FullDetectorResponse(HealpixBase):
             axes of PSR
         exposure : float
             exposure weighting for current local frame
-        loc_pixels : ndarray
+        loc_psichi_pixels : ndarray
             local-frame pixel corresponding to each source-frame
             pixel on PSiChi axis
-        loc_polbins : ndarray
+        loc_pol_bins : ndarray
             local-frame polarization bin corresponding to each
             source-frame bin on Pol axis
         loc_src_pixels : ndarray
@@ -671,7 +668,7 @@ class FullDetectorResponse(HealpixBase):
             # weighted by exposure time
             psr_loc = self._get_pixel_raw(p, weight=exposure)
 
-            sf_psr += psr_loc.take(loc_pixels,
+            sf_psr += psr_loc.take(loc_psichi_pixels,
                                    axis=aid_psichi).take(loc_pol_bins,
                                                          axis=aid_pol)
 
