@@ -33,8 +33,8 @@ class ExtendedSourceResponse(Histogram):
         kwargs['track_overflow'] = False
 
         super().__init__(*args, **kwargs)
-        
-        if not np.all(self.axes.labels == ['NuLambda', 'Ei', 'Em', 'Phi', 'PsiChi']):
+
+        if not list(self.axes.labels) == ['NuLambda', 'Ei', 'Em', 'Phi', 'PsiChi']:
             # 'NuLambda' should be 'lb' if it is in the gal. coordinates?
             raise ValueError(f"The input axes {self.axes.labels} is not supported by ExtendedSourceResponse class.")
 
