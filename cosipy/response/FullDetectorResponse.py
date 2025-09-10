@@ -417,7 +417,7 @@ class FullDetectorResponse(HealpixBase):
         scatt_map : :py:class:`SpacecraftAttitudeMap`
             Spacecraft attitude map used to calculate source path over
             time in spacecraft coordinates
-        Earth_occ : bool, optional
+        earth_occ : bool, optional
             Option to include Earth occultation in the response
             (scatt_map mode only). If True (the default), only one
             source coordinate may be provided, which must be the same
@@ -728,7 +728,7 @@ class FullDetectorResponse(HealpixBase):
         nside_scatt_map : int
             NSIDE parameter for scatt map generation.
             If None, uses the detector response's NSIDE.
-        Earth_occ : bool, default True
+        earth_occ : bool, default True
             Whether to include Earth occultation in the response
 
         Returns
@@ -744,18 +744,18 @@ class FullDetectorResponse(HealpixBase):
                                               target_coord = coord,
                                               scheme = 'ring',
                                               coordsys = hpbase.coordsys,
-                                              earth_occ = Earth_occ)
+                                              earth_occ = earth_occ)
 
         psr = self.get_point_source_response(coord = coord,
                                              scatt_map = scatt_map,
-                                             Earth_occ = Earth_occ)
+                                             earth_occ = earth_occ)
 
         return psr
 
 
     def get_point_source_response_per_image_pixel(self, ipix, orientation, coordsys = 'galactic',
                                                   nside_image = None, nside_scatt_map = None,
-                                                  Earth_occ = True):
+                                                  earth_occ = True):
         """
         Generate a PSR for one pixel of a sky map whose resolution and
         coordinate frame are specified explicitly, or taken from the FDR
@@ -777,7 +777,7 @@ class FullDetectorResponse(HealpixBase):
         nside_scatt_map : int, optional
             NSIDE parameter for scatt map generation.
             If None, uses the detector response's NSIDE.
-        Earth_occ : bool, default True
+        earth_occ : bool, default True
             Whether to include Earth occultation in the response
 
         Returns
@@ -794,7 +794,7 @@ class FullDetectorResponse(HealpixBase):
 
     def get_extended_source_response(self, orientation, coordsys = 'galactic',
                                      nside_image = None, nside_scatt_map = None,
-                                     Earth_occ = True):
+                                     earth_occ = True):
         """
         Generate an extended source response by combining PSRs for all
         pixels of a sky map whose resolution and coordinate frame are
@@ -815,7 +815,7 @@ class FullDetectorResponse(HealpixBase):
         nside_scatt_map : int, optional
             NSIDE parameter for scatt map generation.
             If None, uses the detector response's NSIDE.
-        Earth_occ : bool, default True
+        earth_occ : bool, default True
             Whether to include Earth occultation in the response
 
         Returns
@@ -838,7 +838,7 @@ class FullDetectorResponse(HealpixBase):
         for ipix in tqdm(range(pixel_axis.npix)):
             psr = self._get_psr_for_image_pixel(ipix, pixel_axis,
                                                 orientation, nside_scatt_map,
-                                                Earth_occ)
+                                                earth_occ)
             esr[ipix] = psr.contents.value
 
         axes = Axes([pixel_axis] + list(psr.axes), copy_axes=False)

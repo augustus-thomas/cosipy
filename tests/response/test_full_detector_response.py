@@ -85,7 +85,7 @@ def test_get_extended_source_response():
                                                                          coordsys = 'galactic',
                                                                          nside_image = None,
                                                                          nside_scatt_map = None,
-                                                                         Earth_occ = True)
+                                                                         earth_occ = True)
 
         assert extended_source_response.ndim == 5
 
