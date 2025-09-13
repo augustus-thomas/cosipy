@@ -107,7 +107,7 @@ class SourceInjector():
         if self.response_frame == "spacecraftframe":
 
             if orientation == None:
-                raise TypeError("The when the data are binned in spacecraftframe frame, orientation must be provided to compute the expected counts.")
+                raise TypeError("When the data are binned in spacecraftframe frame, orientation must be provided to compute the expected counts.")
 
 
 
@@ -223,7 +223,7 @@ class SourceInjector():
 
         if self.response_frame == "spacecraftframe":
             if orientation == None:
-                raise TypeError("The when the data are binned in spacecraftframe frame, orientation must be provided to compute the expected counts.")
+                raise TypeError("When the data are binned in spacecraftframe frame, orientation must be provided to compute the expected counts.")
 
         self.components = {}
 
