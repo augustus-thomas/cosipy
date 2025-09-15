@@ -123,7 +123,7 @@ tutorials:
           checksum: faa82255b43d42a2b9c90621fabcb7d6
         COSI-SMEX/DC2/Data/Sources/511_Testing_3months_unbinned_data.fits.gz:
           checksum: 34ac3ae76359969e21058d712c8b6684
-        COSI-SMEX/develop/Data/Responses/SMEXv12.511keV.HEALPixO4.binnedimaging.imagingresponse..h5:
+        COSI-SMEX/develop/Data/Responses/SMEXv12.511keV.HEALPixO4.binnedimaging.imagingresponse.h5:
           checksum: 1fddb86ff5818e16e8c7900c61f17db9
         COSI-SMEX/cosipy_tutorials/extended_source_spectral_fit_galactic_frame/cosmic_photons_binned_data.hdf5:
           checksum: 8b46c07ccf386668ec6402de8f87ec93
