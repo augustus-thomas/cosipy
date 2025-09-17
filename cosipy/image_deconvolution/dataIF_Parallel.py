@@ -6,7 +6,14 @@ logger = logging.getLogger(__name__)
 
 import numpy as np
 import astropy.units as u
-from mpi4py import MPI
+
+try:
+    from mpi4py import MPI
+    mpi4py_imported = True
+except ModuleNotFoundError as e:
+    mpi4py_imported = False
+    mpi4py_imported_error = e
+
 import h5py
 from histpy import Histogram, Axes, Axis, HealpixAxis
 
@@ -104,6 +111,9 @@ class DataIF_Parallel(ImageDeconvolutionDataInterfaceBase):
     """
 
     def __init__(self, event_filename, bkg_filename, bkg_norm_label, drm_filename, name = None, comm = None):
+
+        if not mpi4py_imported:
+            raise RuntimeError(f"Can't run with MPI. Import error: {mpi4py_imported_error}")
 
         ImageDeconvolutionDataInterfaceBase.__init__(self, name)
 
