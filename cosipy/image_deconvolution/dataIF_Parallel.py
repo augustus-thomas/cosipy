@@ -20,13 +20,6 @@ from histpy import Histogram, Axes, Axis, HealpixAxis
 from cosipy.response import FullDetectorResponse
 from cosipy.image_deconvolution import ImageDeconvolutionDataInterfaceBase
 
-# Define npix in NuLambda and PsiChi
-# TODO: information is contained in FullDetectorResponse 
-# and will be supported at a later release
-NUMROWS = 3072
-NUMCOLS = 3072
-MASTER = 0
-
 def load_response_matrix(comm, start_col, end_col, filename):
     '''
     Response matrix
@@ -145,17 +138,25 @@ class DataIF_Parallel(ImageDeconvolutionDataInterfaceBase):
 
         print(f'TaskID = {taskid}, Number of tasks = {numtasks}')
 
+        # Get number of NuLambda and PsiChi pixels
+        # DC2 PSR has underflow/overflow bins (so -2)
+        # Axes are NuLambda, Em, Ei, Phi, PsiChi
+        with h5py.File(drm_filename, "r", driver="mpio", comm=comm) as f1:
+            dataset = f1['hist/contents']
+            nrows = dataset.shape[0] - 2
+            ncols = dataset.shape[4] - 2
+
         # Calculate the indices in Rij that the process has to parse. My hunch is that calculating these scalars individually will be faster than the MPI send broadcast overhead.
-        self.averow = NUMROWS // numtasks
-        self.extra_rows = NUMROWS % numtasks
+        self.averow = nrows // numtasks
+        self.extra_rows = nrows % numtasks
         self.start_row = taskid * self.averow
-        self.end_row = (taskid + 1) * self.averow if taskid < (numtasks - 1) else NUMROWS
+        self.end_row = (taskid + 1) * self.averow if taskid < (numtasks - 1) else nrows
 
         # Calculate the indices in Rji, i.e., Rij transpose, that the process has to parse.
-        self.avecol = NUMCOLS // numtasks
-        self.extra_cols = NUMCOLS % numtasks
+        self.avecol = ncols // numtasks
+        self.extra_cols = ncols % numtasks
         self.start_col = taskid * self.avecol
-        self.end_col = (taskid + 1) * self.avecol if taskid < (numtasks - 1) else NUMCOLS
+        self.end_col = (taskid + 1) * self.avecol if taskid < (numtasks - 1) else ncols
 
         # Load event_binned_data
         event = Histogram.open(event_filename)
