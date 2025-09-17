@@ -223,7 +223,7 @@ def main():
 
                     logger.info(f"Executing notebook {source_nb_path}...")
                     start_time = timeit.default_timer()
-                    ep = ExecutePreprocessor(timeout=config['globals:timeout'], kernel_name=config['globals:kernel']])
+                    ep = ExecutePreprocessor(timeout=config['globals:timeout'], kernel_name=config['globals:kernel'])
                     ep_out = ep.preprocess(nb, {'metadata': {'path': str(wdir)}})
                     elapsed = timeit.default_timer() - start_time
                     logger.info(f"Notebook {source_nb_path} took {elapsed} seconds to finish.")
