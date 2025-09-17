@@ -217,7 +217,7 @@ class MOCTSMap(FastTSMap):
         
         print(f"fitting order = {order}")
         print(f"fitting {len(hypothesis_coords_list)} hypothesis coordinates")
-        results = self.parallel_ts_fit(hypothesis_coords = hypothesis_coords_list, energy_channel = energy_channel, spectrum = spectrum, pixel_idx = pixidx)
+        results = self.parallel_ts_fit(hypothesis_coords = hypothesis_coords_list, energy_channel = energy_channel, spectrum = spectrum, pixel_idx = pixidx, cpu_cores = cpu_cores)
         self.ts_array = results[:,1]
 
         # fill up the 0th order moc map
