@@ -17,7 +17,7 @@ class ImageDeconvolution:
     A class to reconstruct all-sky images from COSI data based on image deconvolution methods.
     """
     model_classes = {"AllSkyImage": AllSkyImageModel}
-    deconvolution_algorithm_classes = {"RL": RichardsonLucy, "RLsimple": RichardsonLucySimple, "MAP_RL": MAP_RichardsonLucy}
+    deconvolution_algorithm_classes = {"RL": RichardsonLucy, "RLsimple": RichardsonLucySimple}
 
     def __init__(self):
         self._dataset = None
@@ -202,9 +202,7 @@ class ImageDeconvolution:
         self._deconvolution = self._deconvolution_class(initial_model = self.initial_model,     # Initialize object for relevant class
                                                         dataset = self.dataset, 
                                                         mask = self.mask, 
-                                                        parameter = algorithm_parameter,
-                                                        parallel = self.parallel_computation,
-                                                        MASTER = self.master_node)
+                                                        parameter = algorithm_parameter)
 
         logger.info("---- parameters ----")
         logger.info(parameter_deconvolution.dump()) 
@@ -221,6 +219,7 @@ class ImageDeconvolution:
         logger.info("#### Image Deconvolution Starts ####")
        
         logger.info(f"<< Initialization >>")
+
         self._deconvolution.initialization()
         
         stop_iteration = False
@@ -228,6 +227,10 @@ class ImageDeconvolution:
             if stop_iteration:
                 break
             stop_iteration = self._deconvolution.iteration()
+
+        self._finalize()
+
+    def _finalize(self):
 
         logger.info(f"<< Finalization >>")
         self._deconvolution.finalization()
@@ -248,3 +251,28 @@ class ImageDeconvolution:
             if data.model_axes != self.initial_model.axes:
                 return False
         return True
+
+class ParallelImageDeconvolution(ImageDeconvolution):
+    def __init__(self, comm):
+        """
+
+        Parameters
+        ----------
+        comm: MPI.COMM_WORLD
+        """
+
+        self._comm = comm
+
+        super().__init__()
+
+    @property
+    def is_master_node(self):
+        return self._comm.Get_rank() == 0
+
+    def _finalize(self):
+
+        # Run last steps --e.g. storing results--
+        # only in the master node
+
+        if self.is_master_node:
+            super()._finalize()

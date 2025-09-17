@@ -1,18 +1,10 @@
 import os
-import copy
 import numpy as np
 import astropy.units as u
 import astropy.io.fits as fits
 import logging
-
-# logging setup
 logger = logging.getLogger(__name__)
 
-# Import third party libraries
-import numpy as np
-import pandas as pd
-import astropy.units as u
-from astropy.io import fits
 from histpy import Histogram
 
 from .RichardsonLucySimple import RichardsonLucySimple
@@ -51,8 +43,7 @@ class RichardsonLucy(RichardsonLucySimple):
         only_final_result: True
     """
 
-    def __init__(self, initial_model:Histogram, dataset:list, mask, parameter,
-                 parallel:bool=False, MASTER:bool=False):
+    def __init__(self, initial_model, dataset, mask, parameter):
 
         super().__init__(initial_model, dataset, mask, parameter)
 
@@ -74,17 +65,12 @@ class RichardsonLucy(RichardsonLucySimple):
         if not self.stopping_criteria_statistics in ["log-likelihood"]:
             raise ValueError
 
-        self.parallel = parallel
-        self.MASTER = MASTER
-
     def initialization(self):
         """
-        initialization before performing image deconvolution
+        initialization before running the image deconvolution
         """
 
-        # Master
-        if (not self.parallel) or (self.MASTER):
-            super().initialization()
+        super().initialization()
 
         # expected count histograms
         self.expectation_list = self.calc_expectation_list(model = self.initial_model, dict_bkg_norm = self.dict_bkg_norm)
@@ -103,19 +89,11 @@ class RichardsonLucy(RichardsonLucySimple):
         """
         pass
 
-        # At the end of this function, all processes should have a complete `self.expectation_list`
-        # to proceed to the Mstep function
-
     def Mstep(self):
         """
         M-step in RL algorithm.
         """
         super().Mstep()
-
-        # At the end of this function, all the nodes will have a full
-        # copy of delta_model. Although this is not necessary, this is
-        # the easiest way without editing RichardsonLucy.py.
-        # The same applies for self.dict_bkg_norm
 
     def post_processing(self):
         """
@@ -125,7 +103,6 @@ class RichardsonLucy(RichardsonLucySimple):
         - acceleration of RL algirithm: the normalization of delta map is increased as long as the updated image has no non-negative components.
         """
 
-        # All
         self.processed_delta_model = self.delta_model.copy()
 
         if self.do_response_weighting:
@@ -144,7 +121,7 @@ class RichardsonLucy(RichardsonLucySimple):
 
         if self.mask is not None:
             self.model = self.model.mask_pixels(self.mask)
-
+        
         # update expectation_list
         self.expectation_list = self.calc_expectation_list(self.model, dict_bkg_norm = self.dict_bkg_norm)
         logger.debug("The expected count histograms were updated with the new model map.")
@@ -152,10 +129,6 @@ class RichardsonLucy(RichardsonLucySimple):
         # update log_likelihood_list
         self.log_likelihood_list = self.calc_log_likelihood_list(self.expectation_list)
         logger.debug("The log-likelihood list was updated with the new expected count histograms.")
-
-        # At the end of this function, all MPI processes needs to have a full
-        # copy of updated model. They calculate it from delta_model (which is
-        # distributed by MPI.Bcast) independently
 
     def register_result(self):
         """
@@ -168,24 +141,22 @@ class RichardsonLucy(RichardsonLucySimple):
         - background_normalization: optimized background normalization
         - log-likelihood: log-likelihood
         """
+        
+        this_result = {"iteration": self.iteration_count, 
+                       "model": self.model.copy(),
+                       "delta_model": self.delta_model,
+                       "processed_delta_model": self.processed_delta_model,
+                       "background_normalization": self.dict_bkg_norm.copy(),
+                       "alpha": self.alpha, 
+                       "log-likelihood": self.log_likelihood_list}
 
-        # Master
-        if (not self.parallel) or (self.MASTER):
-            this_result = {"iteration": self.iteration_count,
-                           "model": self.model.copy(),
-                           "delta_model": self.delta_model,
-                           "processed_delta_model": self.processed_delta_model,
-                           "background_normalization": self.dict_bkg_norm.copy(),
-                           "alpha": self.alpha,
-                           "log-likelihood": self.log_likelihood_list}
-
-            # show intermediate results
-            logger.info(f'  alpha: {this_result["alpha"]}')
-            logger.info(f'  background_normalization: {this_result["background_normalization"]}')
-            logger.info(f'  log-likelihood: {this_result["log-likelihood"]}')
-
-            # register this_result in self.results
-            self.results.append(this_result)
+        # show intermediate results
+        logger.info(f'  alpha: {this_result["alpha"]}')
+        logger.info(f'  background_normalization: {this_result["background_normalization"]}')
+        logger.info(f'  log-likelihood: {this_result["log-likelihood"]}')
+        
+        # register this_result in self.results
+        self.results.append(this_result)
 
     def check_stopping_criteria(self):
         """
@@ -221,33 +192,31 @@ class RichardsonLucy(RichardsonLucySimple):
         """
         finalization after running the image deconvolution
         """
-        # Master
-        if (not self.parallel) or (self.MASTER):
-            if self.save_results == True:
-                logger.info(f'Saving results in {self.save_results_directory}')
+        if self.save_results == True:
+            logger.info(f'Saving results in {self.save_results_directory}')
 
-                counter_name = "iteration"
+            counter_name = "iteration"
 
-                # model
-                histkey_filename = [("model", f"{self.save_results_directory}/model.hdf5"),
-                                    ("delta_model", f"{self.save_results_directory}/delta_model.hdf5"),
-                                    ("processed_delta_model", f"{self.save_results_directory}/processed_delta_model.hdf5")]
+            # model
+            histkey_filename = [("model", f"{self.save_results_directory}/model.hdf5"),
+                                ("delta_model", f"{self.save_results_directory}/delta_model.hdf5"),
+                                ("processed_delta_model", f"{self.save_results_directory}/processed_delta_model.hdf5")]
 
-                for key, filename in histkey_filename:
+            for key, filename in histkey_filename:
 
-                    self.save_histogram(filename = filename,
-                                        counter_name = counter_name,
-                                        histogram_key = key,
-                                        only_final_result = self.save_only_final_result)
+                self.save_histogram(filename = filename,
+                                    counter_name = counter_name,
+                                    histogram_key = key,
+                                    only_final_result = self.save_only_final_result)
 
-                #fits
-                fits_filename = f'{self.save_results_directory}/results.fits'
+            #fits
+            fits_filename = f'{self.save_results_directory}/results.fits'
 
-                self.save_results_as_fits(filename = fits_filename,
-                                          counter_name = counter_name,
-                                          values_key_name_format = [("alpha", "ALPHA", "D")],
-                                          dicts_key_name_format = [("background_normalization", "BKG_NORM", "D")],
-                                          lists_key_name_format = [("log-likelihood", "LOG-LIKELIHOOD", "D")])
+            self.save_results_as_fits(filename = fits_filename,
+                                      counter_name = counter_name,
+                                      values_key_name_format = [("alpha", "ALPHA", "D")],
+                                      dicts_key_name_format = [("background_normalization", "BKG_NORM", "D")],
+                                      lists_key_name_format = [("log-likelihood", "LOG-LIKELIHOOD", "D")])
 
     def calc_alpha(self, delta_model, model):
         """
@@ -258,7 +227,6 @@ class RichardsonLucy(RichardsonLucySimple):
         float
             Acceleration parameter
         """
-
         diff = -1 * (model / delta_model).contents
 
         diff[(diff <= 0) | (delta_model.contents == 0)] = np.inf

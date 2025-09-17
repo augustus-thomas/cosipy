@@ -20,15 +20,11 @@ NUMROWS = 3072
 NUMCOLS = 3072
 MASTER = 0
 
-# Define data paths
-DRM_DIR = Path('/Users/penguin/Documents/Grad School/Research/COSI/COSIpy/docs/tutorials/data')
-DATA_DIR = Path('/Users/penguin/Documents/Grad School/Research/COSI/COSIpy/docs/tutorials/image_deconvolution/511keV/GalacticCDS')
-
 def load_response_matrix(comm, start_col, end_col, filename):
     '''
     Response matrix
     '''
-    with h5py.File(DRM_DIR / filename, "r", driver="mpio", comm=comm) as f1:
+    with h5py.File(filename, "r", driver="mpio", comm=comm) as f1:
         dataset = f1['hist/contents']
         R = dataset[1:-1, 1:-1, 1:-1, 1:-1, start_col+1:end_col+1]
 
@@ -67,7 +63,7 @@ def load_response_matrix_transpose(comm, start_row, end_row, filename):
     '''
     Response matrix tranpose
     '''
-    with h5py.File(DRM_DIR / filename, "r", driver="mpio", comm=comm) as f1:
+    with h5py.File(filename, "r", driver="mpio", comm=comm) as f1:
         dataset = f1['hist/contents']
         RT = dataset[start_row+1:end_row+1, 1:-1, 1:-1, 1:-1, 1:-1]
 
@@ -107,7 +103,7 @@ class DataIF_Parallel(ImageDeconvolutionDataInterfaceBase):
     A subclass of ImageDeconvolutionDataInterfaceBase for the COSI data challenge 2.
     """
 
-    def __init__(self, event_filename, bkg_filename, drm_filename, name = None, comm = None):
+    def __init__(self, event_filename, bkg_filename, bkg_norm_label, drm_filename, name = None, comm = None):
 
         ImageDeconvolutionDataInterfaceBase.__init__(self, name)
 
@@ -124,7 +120,7 @@ class DataIF_Parallel(ImageDeconvolutionDataInterfaceBase):
                 self.parallel = True
                 logger.info('Image Deconvolution set to run in parallel mode')
 
-        self._MPI_init(event_filename, bkg_filename, drm_filename, comm)
+        self._MPI_init(event_filename, bkg_filename, bkg_norm_label, drm_filename, comm)
         
         # None if using Galactic CDS, required if using local CDS
         self._coordsys_conv_matrix = None 
@@ -132,7 +128,7 @@ class DataIF_Parallel(ImageDeconvolutionDataInterfaceBase):
         # Calculate exposure map
         self._calc_exposure_map()
 
-    def _MPI_load_data(self, event_filename, bkg_filename, drm_filename, comm):
+    def _MPI_load_data(self, event_filename, bkg_filename, bkg_norm_label, drm_filename, comm):
 
         numtasks = self.numtasks
         taskid = self.taskid
@@ -152,12 +148,12 @@ class DataIF_Parallel(ImageDeconvolutionDataInterfaceBase):
         self.end_col = (taskid + 1) * self.avecol if taskid < (numtasks - 1) else NUMCOLS
 
         # Load event_binned_data
-        event = Histogram.open(DATA_DIR / event_filename)
+        event = Histogram.open(event_filename)
         self._event = event.project(['Em', 'Phi', 'PsiChi']).to_dense()
 
         # Load dict_bg_binned_data
-        bkg = Histogram.open(DATA_DIR / bkg_filename)
-        self._bkg_models = {"total": bkg.project(['Em', 'Phi', 'PsiChi']).to_dense()}
+        bkg = Histogram.open(bkg_filename)
+        self._bkg_models = {bkg_norm_label: bkg.project(['Em', 'Phi', 'PsiChi']).to_dense()}
 
         # Load response and response transpose
         self._image_response = load_response_matrix(comm, self.start_col, self.end_col, filename=drm_filename)
@@ -209,9 +205,9 @@ class DataIF_Parallel(ImageDeconvolutionDataInterfaceBase):
             self._summed_bkg_models[key] = np.sum(bkg_model)
             self._bkg_models_slice[key] = bkg_model.slice[:, :, self.start_col:self.end_col]
         
-    def _MPI_init(self, event_filename, bkg_filename, drm_filename, comm):
+    def _MPI_init(self, event_filename, bkg_filename, bkg_norm_label, drm_filename, comm):
 
-        self._MPI_load_data(event_filename, bkg_filename, drm_filename, comm)
+        self._MPI_load_data(event_filename, bkg_filename, bkg_norm_label, drm_filename, comm)
 
         self._MPI_set_aux_data()
 
@@ -415,7 +411,7 @@ class DataIF_Parallel(ImageDeconvolutionDataInterfaceBase):
 
         return np.tensordot(dataspace_histogram.contents, self.bkg_model(key).contents, axes = ([0,1,2,3], [0,1,2,3]))
 
-    def calc_loglikelihood(self, expectation):
+    def calc_log_likelihood(self, expectation):
         """
         Calculate log-likelihood from given expected counts or model/expectation.
 
