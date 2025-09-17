@@ -119,14 +119,11 @@ class ImageDeconvolution:
         """
         return self._deconvolution.results
 
-    def initialize(self, parallel_computation = False, master_node = True):
+    def initialize(self):
         """
         Initialize an initial model and an image deconvolution algorithm.
         It is mandatory to execute this method before running the image deconvolution.
         """
-
-        self.parallel_computation = parallel_computation
-        self.master_node = master_node
 
         logger.info("#### Initialization Starts ####")
         
