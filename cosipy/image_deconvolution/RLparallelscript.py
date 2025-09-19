@@ -38,6 +38,8 @@ def main():
             """
             Main script to create a parallel execution-compatible
             dataset using DataIF_Parallel and call ParallelImageDeconvolution
+            
+            NOTE: Currently limited to DC2 data and PSR only.
             """),
         formatter_class=argparse.RawTextHelpFormatter)
 
