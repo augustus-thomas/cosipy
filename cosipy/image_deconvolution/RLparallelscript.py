@@ -5,12 +5,9 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 
-from mhealpy import HealpixMap
 from yayc import Configurator
 
 from astropy import units as u
-
-import matplotlib.pyplot as plt
 
 import argparse
 
@@ -48,6 +45,8 @@ def main():
                       help="This will force MPI parallelization. Used to testing and debuggin."
                            "Running 'mpiexec -n 1 %(prog)s' is otherwise indistinguishable from "
                            "not using mpiexec or mpi4py not being installed")
+    args.add_argument("--plot", action="store_true", default=False,
+                      help="Plot the resulting image")
     args.add_argument("--config",
                       help="Path to config file")
     args.add_argument("--bkg",
@@ -130,27 +129,32 @@ def main():
     if not mpi_parallel or comm.Get_rank() == 0:
         print(image_deconvolution.results)
 
-        def plot_reconstructed_image(result, source_position=None):  # source_position should be (l,b) in degrees
-            iteration = result['iteration']
-            image = result['model']
+        if args.plot:
 
-            for energy_index in range(image.axes['Ei'].nbins):
-                map_healpxmap = HealpixMap(data=image[:, energy_index], unit=image.unit)
+            from mhealpy import HealpixMap
+            import matplotlib.pyplot as plt
 
-                _, ax = map_healpxmap.plot('mollview')
+            def plot_reconstructed_image(result, source_position=None):  # source_position should be (l,b) in degrees
+                iteration = result['iteration']
+                image = result['model']
 
-                _.colorbar.set_label(str(image.unit))
+                for energy_index in range(image.axes['Ei'].nbins):
+                    map_healpxmap = HealpixMap(data=image[:, energy_index], unit=image.unit)
 
-                if source_position is not None:
-                    ax.scatter(source_position[0] * u.deg, source_position[1] * u.deg, transform=ax.get_transform('world'),
-                               color='red')
+                    _, ax = map_healpxmap.plot('mollview')
 
-                plt.title(
-                    label=f"iteration = {iteration}, energy_index = {energy_index} ({image.axes['Ei'].bounds[energy_index][0]}-{image.axes['Ei'].bounds[energy_index][1]})")
+                    _.colorbar.set_label(str(image.unit))
 
-        plot_reconstructed_image(image_deconvolution.results[-1])
+                    if source_position is not None:
+                        ax.scatter(source_position[0] * u.deg, source_position[1] * u.deg, transform=ax.get_transform('world'),
+                                   color='red')
 
-        plt.show()
+                    plt.title(
+                        label=f"iteration = {iteration}, energy_index = {energy_index} ({image.axes['Ei'].bounds[energy_index][0]}-{image.axes['Ei'].bounds[energy_index][1]})")
+
+            plot_reconstructed_image(image_deconvolution.results[-1])
+
+            plt.show()
 
     # MPI Shutdown
     if mpi_parallel:
