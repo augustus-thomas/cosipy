@@ -16,7 +16,9 @@ Install with pip::
   
   pip install --use-pep517 cosipy
 
-Note: ``--use-pep517`` is a temporary workaround to install `astromodels with new setuptools versions<https://github.com/threeML/astromodels/issues/209>`_. 
+Note: ``--use-pep517`` is a temporary workaround to install `astromodels with new setuptools versions <https://github.com/threeML/astromodels/issues/209>`_. 
+
+Note: The tutorials, examples, and other documentation are not shipped with the PyPi (pip) release —only the embedded docstrings. You can see this information in the `main repository <https://github.com/cositools/cosipy>`_  ("docs" folder).
 
 From source (for developers)
 ----------------------------
@@ -73,6 +75,21 @@ Example error log::
            You may need to explicitly state where your local HDF5 headers and
            library can be found by setting the ``HDF5_DIR`` environment
            variable or by using the ``--hdf5`` command-line option.
+
+
+OSError: Could not find library XSFunctions. Impossible to compile Xspec
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This error can occur while installing astromodels::
+
+    Xspec is detected. Will compile the Xspec extension.
+    [...]
+    Could not find library XSFunctions. Impossible to compile Xspec
+
+
+While astromodels support Xspec functions, these are generally not currently relevant for the use and development of cosipy. The most straightforward workaround is to temporarily hide your Xspec installation so that astromodels does not try to link to it. Before running `pip`, run::
+
+    unset HEADAS ASTRO_XSPEC_VERSION
 
 
 Testing

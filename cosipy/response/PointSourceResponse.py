@@ -1,13 +1,13 @@
-from histpy import Histogram, Axes, Axis
+from histpy import Histogram#, Axes, Axis
 
+import numpy as np
 import astropy.units as u
+from scoords import SpacecraftFrame, Attitude
 
-from astropy.units import Quantity
+from .functions import get_integrated_spectral_model
 
-from scipy import integrate
-
-from threeML import DiracDelta, Constant, Line, Quadratic, Cubic, Quartic, StepFunction, StepFunctionUpper, Cosine_Prior, Uniform_prior, PhAbs, Gaussian
-
+import logging
+logger = logging.getLogger(__name__)
 
 class PointSourceResponse(Histogram):
     """
@@ -43,59 +43,70 @@ class PointSourceResponse(Histogram):
         
         return self.axes['Ei']
        
-    def get_expectation(self, spectrum):
+    def get_expectation(self, spectrum, polarization=None):
         """
-        Convolve the response with a spectral hypothesis to obtain the expected
+        Convolve the response with a spectral (and optionally, polarization) hypothesis to obtain the expected
         excess counts from the source.
 
         Parameters
         ----------
         spectrum : :py:class:`threeML.Model`
             Spectral hypothesis.
-
+        polarization : 'astromodels.core.polarization.LinearPolarization', optional
+            Polarization angle and degree. The angle is assumed to have same convention as point source response.
+        
         Returns
         -------
         :py:class:`histpy.Histogram`
              Histogram with the expected counts on each analysis bin
         """
-        
-        eaxis = self.photon_energy_axis
-        
-        spectrum_unit = None
 
-        for item in spectrum.parameters:
-            if getattr(spectrum, item).is_normalization == True:
-                spectrum_unit = getattr(spectrum, item).unit
-                break
-                
-        if spectrum_unit == None:
-            if isinstance(spectrum, Constant):
-                spectrum_unit = spectrum.k.unit
-            elif isinstance(spectrum, Line) or isinstance(spectrum, Quadratic) or isinstance(spectrum, Cubic) or isinstance(spectrum, Quartic):
-                spectrum_unit = spectrum.a.unit
-            elif isinstance(spectrum, StepFunction) or isinstance(spectrum, StepFunctionUpper) or isinstance(spectrum, Cosine_Prior) or isinstance(spectrum, Uniform_prior) or isinstance(spectrum, DiracDelta): 
-                spectrum_unit = spectrum.value.unit
-            elif isinstance(spectrum, PhAbs):
-                spectrum_unit = u.dimensionless_unscaled
-            elif isinstance(spectrum, Gaussian):
-                spectrum_unit = spectrum.F.unit / spectrum.sigma.unit 
-            else:
-                try:
-                    spectrum_unit = spectrum.K.unit
-                except:
-                    raise RuntimeError("Spectrum not yet supported because units of spectrum are unknown.")
-                    
-        if isinstance(spectrum, DiracDelta):
-            flux = Quantity([spectrum.value.value * spectrum_unit * lo_lim.unit if spectrum.zero_point.value >= lo_lim/lo_lim.unit and spectrum.zero_point.value <= hi_lim/hi_lim.unit else 0 * spectrum_unit * lo_lim.unit
-                             for lo_lim,hi_lim
-                             in zip(eaxis.lower_bounds, eaxis.upper_bounds)])
+        if polarization is None:
+
+            if 'Pol' in self.axes.labels:
+
+                raise RuntimeError("Must include polarization in point source response if using polarization response")
+
+            contents = self.contents
+            axes = self.axes[1:]
+
         else:
-            flux = Quantity([integrate.quad(spectrum, lo_lim/lo_lim.unit, hi_lim/hi_lim.unit)[0] * spectrum_unit * lo_lim.unit
-                             for lo_lim,hi_lim
-                             in zip(eaxis.lower_bounds, eaxis.upper_bounds)])
-        
-        flux = self.expand_dims(flux.value, 'Ei') * flux.unit
 
-        expectation = self * flux
+            if not 'Pol' in self.axes.labels:
+                
+                raise RuntimeError("Response must have polarization angle axis to include polarization in point source response")
+
+            polarization_angle = polarization.angle.value
+            polarization_level = polarization.degree.value / 100.
+
+            if polarization_angle == 180.:
+                polarization_angle = 0.
+
+            unpolarized_weights = np.full(self.axes['Pol'].nbins, (1. - polarization_level) / self.axes['Pol'].nbins)
+            polarized_weights = np.zeros(self.axes['Pol'].nbins)
+
+            polarization_bin_index = self.axes['Pol'].find_bin(polarization_angle * u.deg)
+            polarized_weights[polarization_bin_index] = polarization_level
+
+            weights = unpolarized_weights + polarized_weights
+
+            contents = np.tensordot(weights, self.contents, axes=([0], [self.axes.label_to_index('Pol')]))
+
+            axes = self.axes['Em', 'Phi', 'PsiChi']
+
+        energy_axis = self.photon_energy_axis
+
+        flux = get_integrated_spectral_model(spectrum, energy_axis)
         
-        return expectation
+        expectation = np.tensordot(contents, flux.contents, axes=([0], [0]))
+        
+        # Note: np.tensordot loses unit if we use a sparse matrix as it input.
+        if self.is_sparse:
+            expectation *= self.unit * flux.unit
+
+        hist = Histogram(axes, contents=expectation)
+
+        if not hist.unit == u.dimensionless_unscaled:
+            raise RuntimeError("Expectation should be dimensionless, but has units of " + str(hist.unit) + ".")
+
+        return hist
