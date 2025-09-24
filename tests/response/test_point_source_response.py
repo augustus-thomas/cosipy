@@ -41,28 +41,59 @@ def test_get_expectation():
     ## see astromodels.functions.function.Function1D.[function_name]()
     ## normalization units make expectation have units of counts
     norm = 1 / (u.keV * u.cm**2 * u.s)
-    ## 3 sig-figs of precision
+    ## Note: rtol is relative tolerance or relative error
+
     ## Constant
     const = Constant(k=1e-1)
     const.k.unit = norm
     exp = psr.get_expectation(const)
-    assert isinstance(exp, Histogram) == True
-    assert 2.19e+11 < np.sum(exp.contents) < 2.20e+11
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 2.19126308568e+11, rtol=1e-8)
 
     ## Line
     line = Line(a=1e-1, b=-4e-5)
     line.a.unit, line.b.unit = norm, norm
     exp = psr.get_expectation(line)
-    assert isinstance(exp, Histogram) == True
-    assert 2.61e+10 < np.sum(exp.contents) < 2.62e+10
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 2.6118968001e+10, rtol=1e-8)
+
+    ## Quadratic
+    quad = Quadratic(a=1e-1, b=-4e-5, c=1e-9)
+    quad.a.unit, quad.b.unit, quad.c.unit = norm, norm, norm
+    exp = psr.get_expectation(quad)
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 4.02954733e+10, rtol=1e-8)
+
+    ## Cubic
+    cubic = Cubic(a=1e-1, b=-4e-5, c=1e-9, d=-4e-13)
+    cubic.a.unit, cubic.b.unit, cubic.c.unit, cubic.d.unit = norm, norm, norm, norm
+    exp = psr.get_expectation(cubic)
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 2.0639361808e10, rtol=1e-8)
+
+    ## Quartic
+    quartic = Quartic(a=1e-1, b=-4e-5, c=1e-9, d=-4e-13, e=1e-17)
+    for param in quartic.parameters:
+        getattr(quartic, param).unit = norm
+    exp = psr.get_expectation(quartic)
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 2.2514097644e10, rtol=1e-8)
+
+    ## StepFunction
+    step = StepFunction(upper_bound=3e2, lower_bound=0, value=1)
+    step.upper_bound.unit, step.lower_bound.unit, step.value.unit = norm, norm, norm
+    exp = psr.get_expectation(step)
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 1.3864952319e10, rtol=1e-8)
+    
+    ## StepFunctionUpper (same as above except bounds are not "free")
+    step_upper = StepFunctionUpper(upper_bound=3e2, lower_bound=0, value=1)
+    step_upper.upper_bound.unit, step_upper.lower_bound.unit, step_upper.value.unit = norm, norm, norm
+    exp = psr.get_expectation(step_upper)
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 1.3864952319e10, rtol=1e-8)
+
     # spectra = \
-    #     [Constant(k=1e-1),
-    #     Line(a=1e-1, b=-4e-5),
-    #     Quadratic(a=1e-1, b=-4e-5, c=1e-9),
-    #     Cubic(a=1e-1, b=-4e-5, c=1e-9, d=-4e-13),
-    #     Quartic(a=1e-1, b=-4e-5, c=1e-9, d=-4e-13, e=1e-17),
-    #     StepFunction(upper_bound=3e2, lower_bound=0, value=1),
-    #     StepFunctionUpper(upper_bound=3e2, lower_bound=0, value=1),
     #     PhAbs(NH=1e-2, redshift=1),
     #     DiracDelta(zero_point=511, value=1000),
     #     Gaussian(F=1000, mu=1e3, sigma=1e1),
