@@ -46,8 +46,9 @@ def test_get_expectation():
 
     ## Constant
     const = Constant(k=1e-1)
-    with pytest.raises(RuntimeError): # w/o norm should error
+    with pytest.raises(RuntimeError) as r_error: # w/o norm should error
         exp = psr.get_expectation(const)
+    assert r_error.type is RuntimeError
     const.k.unit = norm
     exp = psr.get_expectation(const)
     assert isinstance(exp, Histogram)
@@ -97,5 +98,6 @@ def test_get_expectation():
     assert np.isclose(np.sum(exp.contents), 2.3038894e+12, rtol=1e-8)
 
     ## test polarization error when rsp does not have 'Pol' axis
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError) as r_error:
         exp = psr.get_expectation(const, polarization=LinearPolarization(angle=180, degree=100))
+    assert r_error.type is RuntimeError
