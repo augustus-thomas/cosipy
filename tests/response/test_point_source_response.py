@@ -6,6 +6,7 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 import h5py as h5
 from astropy.time import Time
+from astromodels.core.polarization import LinearPolarization
 from mhealpy import HealpixBase, HealpixMap
 
 from cosipy import test_data
@@ -94,3 +95,7 @@ def test_get_expectation():
     exp = psr.get_expectation(step_upper)
     assert isinstance(exp, Histogram)
     assert np.isclose(np.sum(exp.contents), 2.3038894e+12, rtol=1e-8)
+
+    ## test polarization error when rsp does not have 'Pol' axis
+    with pytest.raises(RuntimeError):
+        exp = psr.get_expectation(const, polarization=LinearPolarization(angle=180, degree=100))
