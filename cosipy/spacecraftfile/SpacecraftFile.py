@@ -517,8 +517,8 @@ class SpacecraftFile():
 
         weighted_duration = weights * self.dts.to_value(u.second)[None]
 
-        pixels = pixels.flatten()
-        weighted_duration = weighted_duration.flatten()
+        pixels = pixels.ravel()
+        weighted_duration = weighted_duration.ravel()
 
         pixels_argsort = np.argsort(pixels)
 
@@ -543,8 +543,8 @@ class SpacecraftFile():
         return self.dwell_map
 
     def get_scatt_map(self,
-                       target_coord,
                        nside,
+                       target_coord=None,
                        scheme = 'ring',
                        coordsys = 'galactic',
                        r_earth = 6378.0,
@@ -558,7 +558,7 @@ class SpacecraftFile():
 
         Parameters
         ----------
-        target_coord : astropy.coordinates.SkyCoord
+        target_coord : astropy.coordinates.SkyCoord, optional
             The coordinates of the target object. 
         nside : int
             The nside of the scatt map.
@@ -578,6 +578,10 @@ class SpacecraftFile():
             The spacecraft attitude map.
         """
         
+        # Check if target_coord is needed
+        if earth_occ and target_coord is None:
+            raise ValueError("target_coord is needed when earth_occ = True")
+
         # Get orientations
         timestamps = self.get_time()
         attitudes = self.get_attitude()
@@ -598,19 +602,20 @@ class SpacecraftFile():
         # Get max angle based on altitude:
         max_angle = np.pi - np.arcsin(r_earth/(r_earth + altitude))
         max_angle *= (180/np.pi) # angles in degree
-        
-        # Calculate angle between source direction and Earth zenith
-        # for each time stamp:
-        src_angle = target_coord.separation(earth_zenith)
-        
-        # Get pointings that are occulted by Earth:
-        earth_occ_index = src_angle.value >= max_angle
 
         # Define weights and set to 0 if blocked by Earth:
         weight = self.livetime*u.s
 
-        if earth_occ == True:
-            weight[earth_occ_index[:-1]] = 0        
+        if earth_occ:
+            # Calculate angle between source direction and Earth zenith
+            # for each time stamp:
+            src_angle = target_coord.separation(earth_zenith)
+
+            # Get pointings that are occulted by Earth:
+            earth_occ_index = src_angle.value >= max_angle
+
+            # Mask
+            weight[earth_occ_index[:-1]] = 0
         
         # Fill histogram:
         h_ori.fill(x, y, weight = weight)
@@ -690,7 +695,7 @@ class SpacecraftFile():
         self.matrix = np.float32(np.zeros((self.Ei_lo.size,self.Em_lo.size))) # initate the matrix
 
         logger.info("Getting the energy redistribution matrix ...")
-        for i in np.arange(self.Ei_lo.size):
+        for i in range(self.Ei_lo.size):
             new_raw = spectral_response[i,:]/spectral_response[i,:].sum()
             self.matrix[i,:] = new_raw
         self.matrix = self.matrix.T
@@ -785,7 +790,7 @@ class SpacecraftFile():
         f_chan = []
         n_chan = []
         matrix = []
-        for i in np.arange(len(self.Ei_lo)):
+        for i in range(len(self.Ei_lo)):
             energ_lo_temp = np.float32(self.Em_lo[i])
             energ_hi_temp = np.float32(self.Ei_hi[i])
 
@@ -796,7 +801,7 @@ class SpacecraftFile():
                 f_chan_temp = []
                 n_chan_temp = []
                 matrix_temp = []
-                for m in np.arange(n_grp_temp):
+                for m in range(n_grp_temp):
                     f_chan_temp += [subsets[m][0]]
                     n_chan_temp += [len(subsets[m])]
                 for m in nz_matrix_idx:
@@ -854,7 +859,7 @@ class SpacecraftFile():
         matrix_bintablehdu.header["TLMIN4"] = (0,"minimum value legally allowed in column 4")
 
         ## Create binary table HDU for EBOUNDS
-        channels = np.int16(np.arange(len(self.Em_lo)))
+        channels = np.arange(len(self.Em_lo), dtype=np.int16)
         e_min = np.float32(self.Em_lo)
         e_max = np.float32(self.Em_hi)
 
@@ -1101,7 +1106,7 @@ class SpacecraftFile():
 
         # Create a 2-d numpy array and store probability data into the redistribution matrix
         rmf_matrix = np.zeros((len(energy_low),len(channel_low))) # create an empty matrix
-        for i in np.arange(data.shape[0]): # i is the measured energy index, examine the matrix_ext.data rows by rows
+        for i in range(data.shape[0]): # i is the measured energy index, examine the matrix_ext.data rows by rows
             if data[i][5].sum() == 0: # if the sum of probabilities is zero, then skip since there is no data at all
                 pass
             else:
@@ -1112,7 +1117,7 @@ class SpacecraftFile():
                 indices = []
                 for k in f_chan:
                     channels = 0
-                    channels = np.arange(k,k + n_chann[np.argwhere(f_chan == k)]).tolist() # generate the cha
+                    channels = np.arange(k,k + n_chann[np.argwhere(f_chan == k)][0][0]).tolist() # generate the cha
                     indices += channels # fappend the channels togeter
                 indices = np.array(indices)
                 for m in indices:
@@ -1129,8 +1134,8 @@ class SpacecraftFile():
         #logger.info(bin_edges)
 
         self.probability = []
-        for i in np.arange(10):
-            for j in np.arange(10):
+        for i in range(10):
+            for j in range(10):
                 self.probability.append(rmf_matrix[i][j])
         #logger.info(type(probability))
 
