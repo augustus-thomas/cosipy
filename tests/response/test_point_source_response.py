@@ -107,6 +107,10 @@ def test_get_expectation():
     ## Test manual integration from scipy.integrate
     gen = GenericFunction()
     gen.set_function(lambda x: 1e-1) # like Constant()
+    # before setting units should throw error
+    with pytest.raises(RuntimeError) as r_error:
+        exp = psr.get_expectation(gen)
+    assert r_error.type is RuntimeError
     gen.k.unit = norm
     exp = psr.get_expectation(gen)
     assert isinstance(exp, Histogram)
