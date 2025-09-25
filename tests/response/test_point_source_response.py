@@ -13,8 +13,8 @@ from cosipy import test_data
 from cosipy.response.FullDetectorResponse import cosi_response
 from cosipy.response import PointSourceResponse, FullDetectorResponse
 
-from threeML import DiracDelta, Constant, Line, Quadratic, Cubic, Quartic, Model 
-from threeML import StepFunction, StepFunctionUpper, Cosine_Prior, Uniform_prior, PhAbs, Gaussian, TbAbs
+from threeML import DiracDelta, Constant, Line, Quadratic, Cubic, Quartic 
+from threeML import StepFunction, StepFunctionUpper, GenericFunction
 from cosipy.threeml.custom_functions import SpecFromDat
 
 import pytest
@@ -96,6 +96,21 @@ def test_get_expectation():
     exp = psr.get_expectation(step_upper)
     assert isinstance(exp, Histogram)
     assert np.isclose(np.sum(exp.contents), 2.3038894e+12, rtol=1e-8)
+
+    ## DiracDelta
+    delta = DiracDelta(value=1, zero_point=251.189)
+    delta.value.unit = norm
+    exp = psr.get_expectation(delta)
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 3.21285337e+10, rtol=1e-8)
+
+    ## Test manual integration from scipy.integrate
+    gen = GenericFunction()
+    gen.set_function(lambda x: 1e-1) # like Constant()
+    gen.k.unit = norm
+    exp = psr.get_expectation(gen)
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 7.84210661e+12, rtol=1e-8)
 
     ## test polarization error when rsp does not have 'Pol' axis
     with pytest.raises(RuntimeError) as r_error:
