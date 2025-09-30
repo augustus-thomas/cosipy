@@ -34,6 +34,20 @@ with FullDetectorResponse.open(response_path) as response:
     exposure_map[:4] = dt/4
     psr = response.get_point_source_response(exposure_map = exposure_map)
 
+# pol response
+rsp_pol_path = test_data.path/"test_polarization_response.h5"
+with FullDetectorResponse.open(rsp_pol_path, pa_convention='RelativeX') as response_pol:
+    exposure_map = HealpixMap(base=response,
+                                    unit=u.s,
+                                    coordsys=SpacecraftFrame())
+
+    ti = Time('1999-01-01T00:00:00.123456789')
+    tf = Time('2010-01-01T00:00:00')
+    dt = (tf-ti).to(u.s)
+
+    exposure_map[:4] = dt/4
+    psr_pol = response_pol.get_point_source_response(exposure_map = exposure_map)
+
 def test_photon_energy_axis():
     assert psr.photon_energy_axis == psr.axes['Ei']
 
@@ -120,3 +134,15 @@ def test_get_expectation():
     with pytest.raises(RuntimeError) as r_error:
         exp = psr.get_expectation(const, polarization=LinearPolarization(angle=180, degree=100))
     assert r_error.type is RuntimeError
+
+    ## test when rsp does have 'Pol' axis
+    const = Constant(k=1e-1)
+    const.k.unit = norm
+    ## throw an error if polarization is not given
+    with pytest.raises(RuntimeError) as r_error:
+        exp = psr_pol.get_expectation(const)
+    assert r_error.type is RuntimeError
+    ## get expectation with polarization
+    exp = psr_pol.get_expectation(const, polarization=LinearPolarization(angle=180, degree=100))
+    assert isinstance(exp, Histogram)
+    assert np.isclose(np.sum(exp.contents), 6.30823539e+11, rtol=1e-8)
