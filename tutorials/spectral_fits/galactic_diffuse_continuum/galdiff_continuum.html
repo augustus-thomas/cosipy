@@ -1,0 +1,1372 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galactic Diffuse Continuum &mdash; cosipy __version__ = &#34;0.4.0dev0&#34;
+ documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=c66554b4"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="API" href="../../../api/index.html" />
+    <link rel="prev" title="Point Source Response with Earth Occultation" href="../../response/PSR_with_Earth_occultation_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            cosipy
+              <img src="../../../_static/cosipy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../other_examples.html">Other examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../response/PSR_with_Earth_occultation_example.html">Point source response with Earth occultation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Galactic diffuse continuum spectral fit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Get-the-data">Get the data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Make-the-dataset-and-bin">Make the dataset and bin</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Define-GALPROP-model">Define GALPROP model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Setup-and-perform-fit">Setup and perform fit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Make-plots">Make plots</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dev/index.html">For developers</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">cosipy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../other_examples.html">Other examples</a></li>
+      <li class="breadcrumb-item active">Galactic Diffuse Continuum</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/tutorials/spectral_fits/galactic_diffuse_continuum/galdiff_continuum.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Galactic-Diffuse-Continuum">
+<h1>Galactic Diffuse Continuum<a class="headerlink" href="#Galactic-Diffuse-Continuum" title="Link to this heading"></a></h1>
+<p>This tutorial demonstrates how to do a spectral fit of the Galactic diffuse continuum emission using an input GALPROP model in healpix format.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># imports:
+from cosipy import COSILike, test_data, BinnedData
+from cosipy.spacecraftfile import SpacecraftFile
+from cosipy.response.FullDetectorResponse import FullDetectorResponse
+from cosipy.threeml.custom_functions import GalpropHealpixModel
+from cosipy.util import fetch_wasabi_file
+from threeML import PointSource, Model, JointLikelihood, DataList, update_logging_level
+from threeML.analysis_results import *
+from astromodels import *
+from astromodels.functions import GalPropTemplate_3D
+import numpy as np
+import matplotlib.pyplot as plt
+import sys
+import logging
+
+# Set logging output:
+logging.basicConfig()
+logging.getLogger().setLevel(logging.INFO)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:21:36 </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> The naima package is not available. Models that depend on it will not be         </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/astromodels/functions/functions_1D/functions.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">functions.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/astromodels/functions/functions_1D/functions.py#47" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">47</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">available                                                                         </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">               </span>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> The GSL library or the pygsl wrapper cannot be loaded. Models that depend on it  </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/astromodels/functions/functions_1D/functions.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">functions.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/astromodels/functions/functions_1D/functions.py#68" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">68</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">will not be available.                                                            </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">               </span>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:21:37 </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> The ebltable package is not available. Models that depend on it will not be     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/astromodels/functions/functions_1D/absorption.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">absorption.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/astromodels/functions/functions_1D/absorption.py#33" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">33</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">available                                                                        </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">                </span>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:21:38 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> Starting 3ML!                                                                     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#39" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">39</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> WARNINGs here are </span><span style="color: #800000; text-decoration-color: #800000; font-weight: bold">NOT</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> errors                                                      </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#40" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">40</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> but are inform you about optional packages that can be installed                  </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#41" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">41</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> </span><span style="color: #800000; text-decoration-color: #800000; font-weight: bold"> to disable these messages, turn off start_warning in your config file</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">            </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#44" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">44</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> no display variable set. using backend for graphics without display (agg)         </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#50" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">50</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:21:40 </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> ROOT minimizer not available                                                </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/minimizer/minimization.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">minimization.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/minimizer/minimization.py#1345" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1345</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> Multinest minimizer not available                                           </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/minimizer/minimization.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">minimization.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/minimizer/minimization.py#1357" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1357</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> PyGMO is not available                                                      </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/minimizer/minimization.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">minimization.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/minimizer/minimization.py#1369" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1369</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:21:41 </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> The cthreeML package is not installed. You will not be able to use plugins which  </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#94" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">94</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">require the C/C++ interface (currently HAWC)                                       </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">              </span>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> Could not import plugin FermiLATLike.py. Do you have the relative instrument     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#144" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">144</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">software installed and configured?                                                </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">               </span>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:21:42 </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> Could not import plugin HAWCLike.py. Do you have the relative instrument         </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#144" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">144</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">software installed and configured?                                                </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">               </span>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:21:45 </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> No fermitools installed                                              </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/utils/data_builders/fermi/lat_transient_builder.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">lat_transient_builder.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/utils/data_builders/fermi/lat_transient_builder.py#44" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">44</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:21:45 </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> Env. variable OMP_NUM_THREADS is not set. Please set it to </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> for optimal         </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#387" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">387</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">performances in 3ML                                                               </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">               </span>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> Env. variable MKL_NUM_THREADS is not set. Please set it to </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> for optimal         </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#387" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">387</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">performances in 3ML                                                               </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">               </span>
+</pre></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> Env. variable NUMEXPR_NUM_THREADS is not set. Please set it to </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> for optimal     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/__init__.py#387" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">387</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">performances in 3ML                                                               </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">               </span>
+</pre></div>
+</div>
+<section id="Get-the-data">
+<h2>Get the data<a class="headerlink" href="#Get-the-data" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># ori file
+fetch_wasabi_file(&#39;COSI-SMEX/DC3/Data/Orientation/DC3_final_530km_3_month_with_slew_15sbins_GalacticEarth_SAA.ori&#39;, checksum = &#39;e5e71e3528e39b855b0e4f74a1a2eebe&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># response file
+fetch_wasabi_file(&#39;COSI-SMEX/develop/Data/Responses/ResponseContinuum.o3.e100_10000.b10log.s10396905069491.m2284.filtered.nonsparse.binnedimaging.imagingresponse.h5&#39;, checksum = &#39;7121f094be50e7bfe9b31e53015b0e85&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># background file
+fetch_wasabi_file(&#39;COSI-SMEX/DC3/Data/Backgrounds/Ge/AlbedoPhotons_3months_unbinned_data_filtered_with_SAAcut.fits.gz&#39;, checksum = &#39;191a451ee597fd2e4b1cf237fc72e6e2&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># source file
+fetch_wasabi_file(&#39;COSI-SMEX/DC3/Data/Sources/GalTotal_SA100_F98_3months_unbinned_data_filtered_with_SAAcut.fits.gz&#39;, checksum = &#39;9fda5a7b15a90358abc2b886979f9fef&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># precomputed point source response
+fetch_wasabi_file(&#39;COSI-SMEX/DC3/Data/Responses/extended_source_response/extended_source_response_continuum_merged.h5.gz&#39;, unzip = True, checksum = &#39;92ed7e22b1dafce6b57611d5cdb6cf70&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># GALPROP input model
+fetch_wasabi_file(&#39;COSI-SMEX/cosipy_tutorials/galactic_diffuse_continuum/total_healpix_57_SA100_F98_example.gz&#39;, checksum = &#39;82cbeb9a86d86637f19f31c762f379fc&#39;)
+</pre></div>
+</div>
+</div>
+<p>Input files:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rsp_file = &quot;ResponseContinuum.o3.e100_10000.b10log.s10396905069491.m2284.filtered.nonsparse.binnedimaging.imagingresponse.h5&quot;
+ori_file = &quot;DC3_final_530km_3_month_with_slew_15sbins_GalacticEarth_SAA.ori&quot;
+BG_file = &quot;AlbedoPhotons_3months_unbinned_data_filtered_with_SAAcut.fits.gz&quot;
+src_file = &quot;GalTotal_SA100_F98_3months_unbinned_data_filtered_with_SAAcut.fits.gz&quot;
+psr_file = &quot;extended_source_response_continuum_merged.h5&quot;
+galprop_model_file = &quot;total_healpix_57_SA100_F98_example.gz&quot;
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Make-the-dataset-and-bin">
+<h2>Make the dataset and bin<a class="headerlink" href="#Make-the-dataset-and-bin" title="Link to this heading"></a></h2>
+<p>This step only needs to be run once. Afterwards, the files can be loaded directly using the cell below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Make combined dataset:
+analysis = BinnedData(&quot;galdiff.yaml&quot;)
+input_files = [BG_file,src_file]
+analysis.combine_unbinned_data(input_files, output_name=&quot;combined_data&quot;)
+
+# Bin galdiff:
+galdiff = BinnedData(&quot;galdiff.yaml&quot;)
+galdiff.get_binned_data(unbinned_data=src_file, output_name=&quot;galdiff_binned_data&quot;)
+
+# Bin background:
+bg_tot = BinnedData(&quot;galdiff.yaml&quot;)
+bg_tot.get_binned_data(unbinned_data=BG_file, output_name=&quot;albedo_photons_binned_data&quot;)
+
+# Bin combined data:
+data_combined = BinnedData(&quot;galdiff.yaml&quot;)
+data_combined.get_binned_data(unbinned_data=&quot;combined_data.fits.gz&quot;, output_name=&quot;combined_binned_data&quot;)
+</pre></div>
+</div>
+</div>
+<p>Load binned files:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>galdiff = BinnedData(&quot;galdiff.yaml&quot;)
+galdiff.load_binned_data_from_hdf5(binned_data=&quot;galdiff_binned_data.hdf5&quot;)
+
+# Load background:
+bg_tot = BinnedData(&quot;galdiff.yaml&quot;)
+bg_tot.load_binned_data_from_hdf5(binned_data=&quot;albedo_photons_binned_data.hdf5&quot;)
+
+# Load combined data:
+data_combined = BinnedData(&quot;galdiff.yaml&quot;)
+data_combined.load_binned_data_from_hdf5(binned_data=&quot;combined_binned_data.hdf5&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:yayc.configurator:Using configuration file at galdiff.yaml
+INFO:yayc.configurator:Using configuration file at galdiff.yaml
+INFO:yayc.configurator:Using configuration file at galdiff.yaml
+</pre></div></div>
+</div>
+<section id="Define-GALPROP-model">
+<h3>Define GALPROP model<a class="headerlink" href="#Define-GALPROP-model" title="Link to this heading"></a></h3>
+<p>Below is how to define the custom GALPROP model. We will save the model to a yaml file so that it can be directly uploaded in the future (as shown at the bottom).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># defining the model:
+galprop_model = GalpropHealpixModel()
+galprop_model.load_file(galprop_model_file)
+
+# The spectrum is defined in the data cube,
+# and so we use a dummy model for defining an extended source in astromodels.
+# NB: This has no impact on the results - just make sure the parameter is fixed!
+spectrum = Constant()
+spectrum.k.value = 0.0
+spectrum.k.free = False
+
+src = ExtendedSource(&quot;galprop_source&quot;, spatial_shape=galprop_model, spectral_shape=spectrum)
+model = Model(src)
+model.save(&quot;galprop_model.yaml&quot;, overwrite=True)
+
+# uncomment below to load saved model:
+#model = load_model(&#39;galprop_model.yaml&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:cosipy.threeml.custom_functions:loading GALPROP model: GALPROP_DC3/total_healpix_57_SA100_F98_example.gz
+</pre></div></div>
+</div>
+</section>
+<section id="Setup-and-perform-fit">
+<h3>Setup and perform fit<a class="headerlink" href="#Setup-and-perform-fit" title="Link to this heading"></a></h3>
+<p>Set background parameter, which is used to fit the amplitude of the background:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>bkg_par = Parameter(&quot;background_cosi&quot;,                                        # background parameter
+                    1,                                                        # initial value of parameter
+                    min_value=0,                                              # minimum value of parameter
+                    max_value=5,                                              # maximum value of parameter
+                    delta=0.05,                                               # initial step used by fitting engine
+                    desc=&quot;Background parameter for cosi&quot;)
+</pre></div>
+</div>
+</div>
+<p>Specify orientation:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ori = SpacecraftFile.parse_from_file(ori_file)
+</pre></div>
+</div>
+</div>
+<p>Instantiate the COSI 3ML plugin</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>cosi = COSILike(&quot;cosi&quot;,                                                       # COSI 3ML plugin
+    dr = rsp_file,                                                            # detector response
+    data = data_combined.binned_data.project(&#39;Em&#39;, &#39;Phi&#39;, &#39;PsiChi&#39;),          # data (source+background)
+    bkg = bg_tot.binned_data.project(&#39;Em&#39;, &#39;Phi&#39;, &#39;PsiChi&#39;),                  # background model
+    sc_orientation = ori,                                                     # spacecraft orientation
+    nuisance_param = bkg_par,                                                 # background parameter
+    precomputed_psr_file = psr_file)                                          # precomputed extended source response
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:cosipy.threeml.COSILike:... loading the pre-computed image response ...
+INFO:cosipy.threeml.COSILike:--&gt; done
+</pre></div></div>
+</div>
+<p>Perform fit:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plugins = DataList(cosi)
+like = JointLikelihood(model, plugins, verbose = True)
+like.fit()
+
+# Save results to file:
+results = like.results
+results.write_to(&quot;fit_results.fits&quot;, overwrite=True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:cosipy.threeml.custom_functions:Interpolating GALPROP map...
+INFO:cosipy.response.functions_3d:Integrating intensity over energy bins...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:40 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> set the minimizer to minuit                                             </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1046" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1046</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:cosipy.threeml.COSILike:Adding 1e-12 to each bin of the expectation to avoid log-likelihood = -inf.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:41 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171587296.292</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                               </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0201</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171574244.963</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                          </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.9801</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171599150.352</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                          </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0052</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171584000.669</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                          </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:42 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.99478</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171590510.094</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                         </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0201</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171558692.899</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                          </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.98007</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171606499.522</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                         </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.002</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171584857.330</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                           </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:43 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.998</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171589641.252</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                           </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.80282</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.9496</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171622941.959</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.87613</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.96887</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171645734.801</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                   </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.88103</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.96887</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171645314.168</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                   </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:44 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.87124</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.96887</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171646080.383</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                   </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.87613</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.97072</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171646253.912</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                   </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.87613</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.96703</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171645129.664</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                   </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:45 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.84847</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.97973</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171650454.928</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                   </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77906</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.008</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655633.154</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.78389</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.008</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655478.642</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77425</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.008</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655713.030</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:46 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77906</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0098</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655496.731</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77906</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0062</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655687.244</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77284</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0076</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.151</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77233</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0076</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.710</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:47 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77736</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0076</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655684.436</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.76731</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0076</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655685.700</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77233</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0094</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655686.800</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77233</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0058</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655682.589</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:48 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.792</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.7771</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655684.857</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.76702</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655684.898</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:49 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0095</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655684.882</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0059</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655684.849</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.792</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.7771</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655684.857</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:50 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.76702</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655684.898</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0095</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655684.882</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0059</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655684.849</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77306</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655724.165</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:51 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77104</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655724.145</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77225</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.728</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77185</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.724</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0081</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655724.155</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:52 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0073</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655724.154</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0078</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.726</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0076</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.726</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:53 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.7771</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0095</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655584.801</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                     </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.792</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77225</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.728</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77185</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.724</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:54 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0078</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.726</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0076</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.726</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77209</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.789</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77201</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.789</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">17:24:55 </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.789</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77205</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0077</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.789</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #00ffaf; text-decoration-color: #00ffaf">INFO    </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> trial values: </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">0.77225</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">,</span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">1.0078</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> -&gt; logL = </span><span style="color: #c0c0c0; text-decoration-color: #c0c0c0; font-weight: bold">171655725.568</span><span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">                    </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">joint_likelihood.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/classicMLE/joint_likelihood.py#1014" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">1014</span></a>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ff00; text-decoration-color: #00ff00">         </span><span style="color: #af5fd7; text-decoration-color: #af5fd7">WARNING </span> <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold"> get_number_of_data_points not implemented, values for statistical        </span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/plugin_prototype.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">plugin_prototype.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///discover/nobackup/ckarwin/Software/COSIPY_new/lib/python3.10/site-packages/threeML/plugin_prototype.py#130" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">130</span></a>
+<span style="color: #00ff00; text-decoration-color: #00ff00">         </span>         <span style="color: #c6c6c6; text-decoration-color: #c6c6c6; font-weight: bold">measurements such as AIC or BIC are unreliable                            </span><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">                       </span>
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #00ffaf; text-decoration-color: #00ffaf; font-weight: bold; text-decoration: underline">Best fit values:</span>
+
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>result</th>
+      <th>unit</th>
+    </tr>
+    <tr>
+      <th>parameter</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>galprop_source.GalpropHealpixModel.K</th>
+      <td>(7.721 +/- 0.008) x 10^-1</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>background_cosi</th>
+      <td>1.00771 +/- 0.00029</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">
+<span style="color: #00ffaf; text-decoration-color: #00ffaf; font-weight: bold; text-decoration: underline">Correlation matrix:</span>
+
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div><table id="table23337880777008">
+<tr><td>1.00</td><td>-0.72</td></tr>
+<tr><td>-0.72</td><td>1.00</td></tr>
+</table></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">
+<span style="color: #00ffaf; text-decoration-color: #00ffaf; font-weight: bold; text-decoration: underline">Values of -log(likelihood) at the minimum:</span>
+
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>-log(likelihood)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>cosi</th>
+      <td>-1.716557e+08</td>
+    </tr>
+    <tr>
+      <th>total</th>
+      <td>-1.716557e+08</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">
+<span style="color: #00ffaf; text-decoration-color: #00ffaf; font-weight: bold; text-decoration: underline">Values of statistical measures:</span>
+
+</pre></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>statistical measures</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>AIC</th>
+      <td>-3.433115e+08</td>
+    </tr>
+    <tr>
+      <th>BIC</th>
+      <td>-3.433115e+08</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>The best-fit normalizations are: galprop map: 0.7721 +/- 0.0008 background: 1.00771 +/- 0.00029 Thus, we recover the background to within &lt;1%,although the galprop normalization is lower than the input by ~23%. The discrepancy is likely due to the coarse energy binning. The predicted counts agree to within ~6%. Below we plot some of the results, and compare to the inputs.</p>
+</section>
+<section id="Make-plots">
+<h3>Make plots<a class="headerlink" href="#Make-plots" title="Link to this heading"></a></h3>
+<p>Compare best-fit to injected source:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%matplotlib inline
+# Get expected counts from likelihood scan (i.e. best-fit convolved with response):
+total_expectation = cosi._expected_counts[&#39;galprop_source&#39;]
+print()
+print(&quot;galdiff expected counts:&quot;)
+print(total_expectation.project(&#39;Em&#39;).todense().contents)
+print()
+
+# Plot:
+fig,ax = plt.subplots()
+
+binned_energy_edges = galdiff.binned_data.axes[&#39;Em&#39;].edges.value
+binned_energy = galdiff.binned_data.axes[&#39;Em&#39;].centers.value
+
+ax.stairs(total_expectation.project(&#39;Em&#39;).todense().contents, binned_energy_edges, color=&#39;purple&#39;, label = &quot;Best-fit convolved with response&quot;)
+ax.errorbar(binned_energy, total_expectation.project(&#39;Em&#39;).todense().contents, yerr=np.sqrt(total_expectation.project(&#39;Em&#39;).todense().contents), color=&#39;purple&#39;, linewidth=0, elinewidth=1)
+ax.stairs(galdiff.binned_data.project(&#39;Em&#39;).todense().contents, binned_energy_edges, color = &#39;black&#39;, ls = &quot;:&quot;, label = &quot;Simulated source counts&quot;)
+ax.errorbar(binned_energy, galdiff.binned_data.project(&#39;Em&#39;).todense().contents, yerr=np.sqrt(galdiff.binned_data.project(&#39;Em&#39;).todense().contents), color=&#39;black&#39;, linewidth=0, elinewidth=1)
+
+ax.set_xlabel(&quot;Energy (keV)&quot;)
+ax.set_ylabel(&quot;Counts&quot;)
+plt.yscale(&#39;log&#39;)
+plt.xscale(&#39;log&#39;)
+ax.legend()
+plt.savefig(&quot;injected_model_comparison.pdf&quot;)
+plt.show()
+plt.close()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+galdiff expected counts:
+[7.75334220e+05 1.89566418e+06 1.76323635e+06 1.10662652e+06
+ 6.56071259e+05 3.87738657e+05 2.35773990e+05 9.77339502e+04
+ 2.13603984e+04 1.03920660e+03]
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_27_1.png" src="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_27_1.png" />
+</div>
+</div>
+<p>percent difference:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>diff = (galdiff.binned_data.project(&#39;Em&#39;).todense().contents - total_expectation.project(&#39;Em&#39;).todense().contents)/total_expectation.project(&#39;Em&#39;).todense().contents
+
+plt.semilogx(binned_energy,diff,ls=&quot;--&quot;,marker=&quot;o&quot;)
+plt.xlabel(&quot;Energy [keV]&quot;)
+plt.ylabel(&quot;(data - model) / model&quot;)
+plt.savefig(&quot;percent_diff.pdf&quot;)
+plt.show()
+plt.close()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_29_0.png" src="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_29_0.png" />
+</div>
+</div>
+<p>Compare best-fit to injected for total counts:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Plot:
+fig,ax = plt.subplots()
+
+ax.stairs(total_expectation.project(&#39;Em&#39;).todense().contents \
+        +(bkg_par.value * bg_tot.binned_data.project(&#39;Em&#39;).todense().contents) \
+        , binned_energy_edges, color=&#39;purple&#39;, label = &quot;Best fit convolved with response plus BG&quot;)
+ax.errorbar(binned_energy, total_expectation.project(&#39;Em&#39;).todense().contents \
+        +(bkg_par.value * bg_tot.binned_data.project(&#39;Em&#39;).todense().contents) \
+        , yerr=np.sqrt(total_expectation.project(&#39;Em&#39;).todense().contents \
+        +(bkg_par.value * bg_tot.binned_data.project(&#39;Em&#39;).todense().contents)), \
+        color=&#39;purple&#39;, linewidth=0, elinewidth=1)
+ax.stairs(data_combined.binned_data.project(&#39;Em&#39;).todense().contents, binned_energy_edges, \
+        color = &#39;black&#39;, ls = &quot;:&quot;, label = &quot;Simulated total counts&quot;)
+ax.errorbar(binned_energy, data_combined.binned_data.project(&#39;Em&#39;).todense().contents, \
+        yerr=np.sqrt(data_combined.binned_data.project(&#39;Em&#39;).todense().contents), color=&#39;black&#39;, linewidth=0, elinewidth=1)
+
+ax.set_xlabel(&quot;Energy (keV)&quot;)
+ax.set_ylabel(&quot;Counts&quot;)
+
+ax.legend()
+plt.yscale(&#39;log&#39;)
+plt.xscale(&#39;log&#39;)
+plt.savefig(&quot;injected_total_comparison.pdf&quot;)
+plt.show()
+plt.close()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_31_0.png" src="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_31_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mod_tot = total_expectation.project(&#39;Em&#39;).todense().contents \
+        +(bkg_par.value * bg_tot.binned_data.project(&#39;Em&#39;).todense().contents)
+diff = (data_combined.binned_data.project(&#39;Em&#39;).todense().contents - mod_tot)/mod_tot
+
+plt.semilogx(binned_energy,diff,ls=&quot;--&quot;,marker=&quot;o&quot;)
+plt.xlabel(&quot;Energy [keV]&quot;)
+plt.ylabel(&quot;(data - model) / model&quot;)
+plt.savefig(&quot;percent_diff.pdf&quot;)
+plt.show()
+plt.close()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_32_0.png" src="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_32_0.png" />
+</div>
+</div>
+<p>Plot average intensity (averaged over full sky):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Get parameter error manually:
+hdu = fits.open(&quot;fit_results.fits&quot;)
+data = hdu[1].data
+K = data[&#39;VALUE&#39;][0]
+Kerr = data[&quot;ERROR&quot;][0]
+
+# We will pass the response nside in order to use the same spatial sampling as the fit:
+with FullDetectorResponse.open(rsp_file) as response:
+    nside = response.nside
+
+# We will also use the same energy values as was used in the fit:
+binned_energy = galdiff.binned_data.axes[&#39;Em&#39;].centers.to(u.MeV).value
+binned_energy_edges = galdiff.binned_data.axes[&#39;Em&#39;].edges.to(u.MeV).value
+energy_err = np.diff(binned_energy_edges)/2.0
+
+# Below we will pass avg_int=True in order to get the average intensity. Otherwise, the function returns the total intensity by default.
+intensity = results.optimized_model[&quot;galprop_source&quot;].spatial_shape.get_total_spatial_integral(binned_energy, avg_int=True, nside=nside)
+intensity = intensity.value
+
+yerr = (Kerr/K)*(intensity)
+yerr *= (binned_energy**2)
+print(&quot;intensity error:&quot;)
+print(yerr)
+
+intensity *= (binned_energy**2)
+
+fig,ax = plt.subplots()
+
+ax.loglog(binned_energy, intensity, ls=&quot;&quot;, marker=&quot;o&quot;, color=&quot;black&quot;, label = &quot;Best-fit&quot;)
+ax.errorbar(binned_energy, intensity, xerr=energy_err, yerr=yerr, ls=&quot;&quot;, marker=&quot;o&quot;, color=&quot;black&quot;, label = &quot;_nolabel_&quot;)
+
+# Plot model specturm with galpy:
+# This is optional and requires galpy package:
+# https://github.com/ckarwin/galpy
+#from galpy import GalMapsHeal
+#instance = GalMapsHeal()
+#instance.read_healpix_file(&quot;GALPROP_DC3/total_healpix_57_SA100_F98_example.gz&quot;)
+#instance.make_spectrum()
+#gal_energy = instance.energy
+#gal_spec = instance.spectra_list
+#ax.loglog(gal_energy, gal_spec, ls=&quot;-&quot;, marker=&quot;&quot;, color=&quot;red&quot;, label = &quot;GALPROP model&quot;)
+
+plt.ylabel(&quot;dN/dE [$\mathrm{MeV \ cm^{-2} \ s^{-1} \ sr^{-1}}$]&quot;)
+plt.xlabel(&quot;Energy [MeV]&quot;)
+plt.title(&quot;Average Intensity&quot;)
+ax.legend()
+plt.xlim(5e-2,20)
+plt.ylim(1e-4,5e-3)
+plt.savefig(&quot;intensity.pdf&quot;)
+plt.show()
+plt.close()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:cosipy.threeml.custom_functions:using nside=8 from user input in evaluate method
+INFO:cosipy.threeml.custom_functions:loading GALPROP model: GALPROP_DC3/total_healpix_57_SA100_F98_example.gz
+INFO:cosipy.threeml.custom_functions:Interpolating GALPROP map...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+intensity error:
+[6.56078943e-07 6.93643149e-07 7.23477880e-07 7.63933238e-07
+ 8.07484834e-07 8.81433266e-07 9.58088343e-07 1.07182018e-06
+ 1.18119475e-06 1.33628090e-06]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_34_2.png" src="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_34_2.png" />
+</div>
+</div>
+<p>Below we plot the best-fit spectrum just for demonstration. Again, this is just a dummy model since the spectrum is contained in the 3D data cube. This has no impact on the fit.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>energy = np.linspace(100.,10000.,201)*u.keV
+flux = results.optimized_model[&quot;galprop_source&quot;].spectrum.main.shape(energy)
+
+fig,ax = plt.subplots()
+
+ax.plot(energy, flux, label = &quot;Best fit&quot;)
+
+plt.ylabel(&quot;dN/dE [$\mathrm{ph \ cm^{-2} \ s^{-1} \ keV^{-1}}$]&quot;, fontsize=14)
+plt.xlabel(&quot;Energy [keV]&quot;, fontsize=14)
+ax.legend()
+plt.savefig(&quot;best_fit_model.pdf&quot;)
+plt.show()
+plt.close()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_36_0.png" src="../../../_images/tutorials_spectral_fits_galactic_diffuse_continuum_galdiff_continuum_36_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../response/PSR_with_Earth_occultation_example.html" class="btn btn-neutral float-left" title="Point Source Response with Earth Occultation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../../api/index.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, COSI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
