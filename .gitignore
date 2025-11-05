@@ -137,3 +137,7 @@ dmypy.json
 # IDEs
 # PyCharm / IntelliJ
 /.idea
+
+# Ruff linter
+.ruff_cache/
+ruff.toml
