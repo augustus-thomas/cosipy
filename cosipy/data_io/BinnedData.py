@@ -108,12 +108,12 @@ class BinnedData(UnBinnedData):
         self.binned_data = Histogram(axes, sparse=True)
          
         # Fill histogram:
-        if event_range == None:
+        if event_range is None:
             self.binned_data.fill(self.cosi_dataset['TimeTags']*u.s, 
                     self.cosi_dataset['Energies']*u.keV, 
                     np.rad2deg(self.cosi_dataset['Phi'])*u.deg, 
                     coords)
-        if event_range != None:
+        if event_range is not None:
             low = int(event_range[0])
             high = int(event_range[1])
             self.binned_data.fill(self.cosi_dataset['TimeTags'][low:high]*u.s, 
@@ -122,7 +122,7 @@ class BinnedData(UnBinnedData):
                     coords[low:high])
 
         # Save binned data to hdf5 file:
-        if output_name != None:
+        if output_name is not None:
             self.binned_data.write('%s.hdf5' %output_name, overwrite=True)
 
         # Get binning information:
@@ -399,7 +399,7 @@ class BinnedData(UnBinnedData):
             plt.legend(loc=1,frameon=True)
         
         # Save and show:
-        if output_name != None:
+        if output_name is not None:
             plt.savefig("%s.pdf" %output_name)
         if show_plots:
             plt.show()
@@ -449,7 +449,7 @@ class BinnedData(UnBinnedData):
             plot_kwargs=plot_kwargs, fig_kwargs=fig_kwargs, show_plots=show_plots)
 
         # Write data:
-        if output_name != None:
+        if output_name is not None:
             d = {"Energy[keV]":self.energy_bin_centers,data_label:raw_rate}
             df = pd.DataFrame(data=d)
             df.to_csv("%s.dat" %output_name,float_format='%10.5e',index=False,sep="\t",columns=["Energy[keV]",data_label])
@@ -489,7 +489,7 @@ class BinnedData(UnBinnedData):
             plot_kwargs=plot_kwargs, fig_kwargs=fig_kwargs, show_plots=show_plots)
             
         # Write data:
-        if output_name != None:
+        if output_name is not None:
             d = {"Time[UTC]":self.time_bin_centers,"Rate[ct/s]":self.time_hist/self.time_bin_widths}
             df = pd.DataFrame(data=d)
             df.to_csv("%s.dat" %output_name,index=False,sep="\t",columns=["Time[UTC]","Rate[ct/s]"])

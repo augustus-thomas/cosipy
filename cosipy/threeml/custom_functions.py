@@ -136,7 +136,7 @@ class SpecFromDat(Function1D, metaclass=FunctionMeta):
             
             fun = interp1d(dataEn,dataFlux,fill_value=0,bounds_error=False)
             
-            if self._x_unit != None:
+            if self._x_unit is not None:
                 dataEn *= self._x_unit
 
             result = np.zeros(x.shape) * K * 0

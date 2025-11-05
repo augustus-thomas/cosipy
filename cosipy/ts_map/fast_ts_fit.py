@@ -215,7 +215,7 @@ class FastTSMap():
         #time_cds_start = time.time()
         if cds_frame == "local":
             
-            if orientation == None:
+            if orientation is None:
                 raise TypeError("The when the data are binned in local frame, orientation must be provided to compute the expected counts.")
 
             #time_coord_convert_start = time.time()
@@ -409,7 +409,7 @@ class FastTSMap():
         """
         
         # decide the ts_nside from the list of hypothesis coordinates if not given
-        if ts_nside == None:
+        if ts_nside is None:
             ts_nside = hp.npix2nside(len(hypothesis_coords))
         
         # get the flattened data_cds_array
@@ -427,7 +427,7 @@ class FastTSMap():
         
         # set up the number of cores to use for the parallel computation
         total_cores = multiprocessing.cpu_count()
-        if cpu_cores == None or cpu_cores >= total_cores:
+        if cpu_cores is None or cpu_cores >= total_cores:
             # if you don't specify the number of cpu cores to use or the specified number of cpu cores is the same as the total number of cores you have
             # it will use the [total_cores - 1] number of cores to run the parallel computation.
             cores = total_cores - 1
@@ -484,7 +484,7 @@ class FastTSMap():
         """
 
 
-        if skycoord != None:
+        if skycoord is not None:
             lon = skycoord.l.deg
             lat = skycoord.b.deg
 
@@ -496,16 +496,16 @@ class FastTSMap():
         fig, ax = plt.subplots(dpi=dpi)
         
         # plot the ts map with containment region
-        if containment != None:
+        if containment is not None:
             critical = FastTSMap.get_chi_critical_value(containment = containment)
             percentage = containment*100
             max_ts = np.max(m_ts[:])
             min_ts = np.min(m_ts[:])        
             hp.mollview(m_ts[:], max = max_ts, min = max_ts-critical, title = f"Containment {percentage}%", coord = "G", hold = True) 
-        elif containment == None:
+        elif containment is None:
             hp.mollview(m_ts[:], coord = "G", hold = True) 
 
-        if skycoord != None:
+        if skycoord is not None:
             hp.projscatter(lon, lat, marker = "x", linewidths = 0.5, lonlat=True, coord = "G", label = f"True location at l={lon}, b={lat}", color = "fuchsia")
         hp.projscatter(0, 0, marker = "o", linewidths = 0.5, lonlat=True, coord = "G", color = "red")
         hp.projtext(350, 0, "(l=0, b=0)", lonlat=True, coord = "G", color = "red")

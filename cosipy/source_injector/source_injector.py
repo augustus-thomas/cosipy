@@ -102,7 +102,7 @@ class SourceInjector():
         # get the point source response in local frame
         if self.response_frame == "spacecraftframe":
 
-            if orientation == None:
+            if orientation is None:
                 raise TypeError("The when the data are binned in spacecraftframe frame, orientation must be provided to compute the expected counts.")
 
 
@@ -218,7 +218,7 @@ class SourceInjector():
     def inject_model(self, model, orientation = None, make_spectrum_plot = False, data_save_path = None, project_axes = None):
 
         if self.response_frame == "spacecraftframe":
-            if orientation == None:
+            if orientation is None:
                 raise TypeError("The when the data are binned in spacecraftframe frame, orientation must be provided to compute the expected counts.")
 
         self.components = {}

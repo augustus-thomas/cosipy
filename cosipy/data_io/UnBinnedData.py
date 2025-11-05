@@ -230,10 +230,10 @@ class UnBinnedData(DataIO):
                 this_id = this_line[1]
             
             # Option to only parse a subset of events:
-            if event_min != None:
+            if event_min is not None:
                 if N_events < event_min:
                     continue
-            if event_max != None:
+            if event_max is not None:
                 if N_events >= event_max:
                     pbar.close()
                     logger.info("Stopping here: only reading a subset of events")
@@ -407,7 +407,7 @@ class UnBinnedData(DataIO):
         self.cosi_dataset = cosi_dataset
 
         # Option to write unbinned data to file (either fits or hdf5):
-        if output_name != None:
+        if output_name is not None:
             logger.info("Saving file...")
             self.write_unbinned_output(output_name) 
         
@@ -671,7 +671,7 @@ class UnBinnedData(DataIO):
             self.cosi_dataset[key] = self.cosi_dataset[key][time_cut_index]
 
         # Write unbinned data to file (either fits or hdf5):
-        if output_name != None:
+        if output_name is not None:
             logger.info("Saving file...")
             self.write_unbinned_output(output_name)
 
@@ -710,7 +710,7 @@ class UnBinnedData(DataIO):
             self.cosi_dataset[key] = self.cosi_dataset[key][energy_cut_index]
 
         # Write unbinned data to file (either fits or hdf5):
-        if output_name != None:
+        if output_name is not None:
             logger.info("Saving file...")
             self.write_unbinned_output(output_name)
 
@@ -752,7 +752,7 @@ class UnBinnedData(DataIO):
             gc.collect()
 
         # Write unbinned data to file (either fits or hdf5):
-        if output_name != None:
+        if output_name is not None:
             self.write_unbinned_output(output_name)
 
         return
@@ -854,7 +854,7 @@ class UnBinnedData(DataIO):
             self.cosi_dataset[key] = self.cosi_dataset[key][time_keep_index]
 
         # Write unbinned data to file (either fits or hdf5):
-        if output_name != None:
+        if output_name is not None:
             logger.info("Saving file...")
             self.write_unbinned_output(output_name)
 

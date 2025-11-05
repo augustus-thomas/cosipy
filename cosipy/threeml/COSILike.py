@@ -74,7 +74,7 @@ class COSILike(PluginPrototype):
             else:
                 self._coordsys = data.axes["PsiChi"].coordsys.name
         except:
-            if coordsys == None:
+            if coordsys is not None:
                 raise RuntimeError("There is no coordinate system attached to the binned data. One must be provided by " 
                                    "specifiying coordsys='galactic' or 'spacecraftframe'")
             else:
@@ -88,7 +88,7 @@ class COSILike(PluginPrototype):
         self._expected_counts = None 
 
         # Set to fit nuisance parameter if given by user
-        if nuisance_param == None:
+        if nuisance_param is None:
             self.set_inner_minimization(False)
         elif isinstance(nuisance_param, Parameter):
             self.set_inner_minimization(True)
@@ -102,7 +102,7 @@ class COSILike(PluginPrototype):
         # Note: this still needs to be implemented in a 
         # consistent way for point srcs and extended srcs. 
         self.precomputed_psr_file = precomputed_psr_file
-        if self.precomputed_psr_file != None:
+        if self.precomputed_psr_file is not None:
             logger.info("... loading the pre-computed image response ...")
             self.image_response = ExtendedSourceResponse.open(self.precomputed_psr_file)
             logger.info("--> done")
@@ -132,7 +132,7 @@ class COSILike(PluginPrototype):
         
         # Save expected counts for each source,
         # in order to enable easy plotting after likelihood scan:
-        if self._expected_counts == None:
+        if self._expected_counts is None:
             self._expected_counts = {}
 
         for name,source in extended_sources.items():

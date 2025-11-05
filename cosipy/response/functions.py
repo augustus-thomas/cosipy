@@ -44,7 +44,7 @@ def get_integrated_spectral_model(spectrum, energy_axis):
             spectrum_unit = getattr(spectrum, item).unit
             break
             
-    if spectrum_unit == None:
+    if spectrum_unit is None:
         if isinstance(spectrum, Constant):
             spectrum_unit = spectrum.k.unit
         elif isinstance(spectrum, (Line, Quadratic, Cubic, Quartic)):

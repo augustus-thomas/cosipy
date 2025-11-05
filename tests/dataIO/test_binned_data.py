@@ -37,7 +37,7 @@ def test_binned_data(tmp_path):
     assert analysis.binned_data.axes["Em"].unit == "keV" 
     assert analysis.binned_data.axes["Time"].unit == "s"
     assert analysis.binned_data.axes["Phi"].unit == "deg"
-    assert analysis.binned_data.axes["PsiChi"].unit == None
+    assert analysis.binned_data.axes["PsiChi"].unit is None
 
     # Test binning in local coordinates and chunks:
     analysis.get_binned_data(psichi_binning="local",event_range=[0,3])

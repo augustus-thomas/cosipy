@@ -103,7 +103,7 @@ class SpacecraftFile():
 
         # check if the x, y and z pointings are all None (no inputs). If all None, tt will try to read from attitude parameter
         if self.x_pointings is None and self.y_pointings is None and self.z_pointings is None:
-            if attitude != None:
+            if attitude is not None:
                 if type(attitude) is Attitude:
                     self.attitude = attitude
                 else:
@@ -170,7 +170,7 @@ class SpacecraftFile():
             The time stamps of the orientation.
         """
 
-        if time_array == None:
+        if time_array is None:
             self._time = Time(self._load_time, format = "unix")
         else:
             self._time = Time(time_array, format = "unix")
@@ -208,7 +208,7 @@ class SpacecraftFile():
             The time difference between the neighbouring time stamps.
         """
 
-        if time_array == None:
+        if time_array is None:
             self._time_delta = np.diff(self._load_time)
         else:
             self._time_delta = np.diff(time_array)
@@ -385,7 +385,7 @@ class SpacecraftFile():
                 self.z_pointings = z_pointings
 
             list_ = [self.x_pointings, self.y_pointings, self.z_pointings]
-            coord_list_of_path = [x for x in list_ if x!=None]  # check how many pointings the user input
+            coord_list_of_path = [x for x in list_ if x is not None]  # check how many pointings the user input
 
             # Check if the user input pointings from at least two axes
             if len(coord_list_of_path) <= 1:
@@ -428,7 +428,7 @@ class SpacecraftFile():
             The target coordinates in the spacecraft frame.
         """
 
-        if attitude != None:
+        if attitude is not None:
             self.attitude = attitude
         else:
             self.attitude = self.get_attitude()

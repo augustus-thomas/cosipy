@@ -10,9 +10,9 @@ def test_exposure_table(tmp_path):
 
     ori = SpacecraftFile.parse_from_file(test_data.path / "20280301_first_10sec.ori")
 
-    assert SpacecraftAttitudeExposureTable.analyze_orientation(ori, nside=nside, start=None, stop=ori.get_time()[-1], min_exposure=0, min_num_pointings=1) == None
+    assert SpacecraftAttitudeExposureTable.analyze_orientation(ori, nside=nside, start=None, stop=ori.get_time()[-1], min_exposure=0, min_num_pointings=1) is None
 
-    assert SpacecraftAttitudeExposureTable.analyze_orientation(ori, nside=nside, start=ori.get_time()[0], stop=None, min_exposure=0, min_num_pointings=1) == None
+    assert SpacecraftAttitudeExposureTable.analyze_orientation(ori, nside=nside, start=ori.get_time()[0], stop=None, min_exposure=0, min_num_pointings=1) is None
 
     exposure_table = SpacecraftAttitudeExposureTable.from_orientation(ori, nside=nside, 
                                                                       start=ori.get_time()[0], stop=ori.get_time()[-1], 

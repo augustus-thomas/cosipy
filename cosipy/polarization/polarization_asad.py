@@ -325,7 +325,7 @@ class PolarizationASAD():
             Counts in each azimuthal scattering angle bin
         """
 
-        if not bins == None:
+        if bins is not None:
             if isinstance(bins, int):
                 bin_edges = Angle(np.linspace(-np.pi, np.pi, bins), unit=u.rad)
             else:
@@ -352,7 +352,7 @@ class PolarizationASAD():
             Counts in each azimuthal scattering angle bin for each polarization angle bin
         """
 
-        if not bins == None:
+        if bins is not None:
             if isinstance(bins, int):
                 bin_edges = Angle(np.linspace(-np.pi, np.pi, bins), unit=u.rad)
             else:
