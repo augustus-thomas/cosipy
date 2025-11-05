@@ -1,5 +1,4 @@
 import numpy as np
-from tqdm.autonotebook import tqdm
 import astropy.units as u
 
 import logging
@@ -135,7 +134,7 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
                 bkg_edges, bkg_unit = self._bkg_models[key].axes[name].edges, self._bkg_models[key].axes[name].unit
 
                 if np.all(event_edges == bkg_edges):
-                    logger.info(f"    --> pass (edges)")
+                    logger.info("    --> pass (edges)")
                 else:
                     logger.error(f"Warning: the edges of the axis {name} are not consistent between the event and the background model {key}!")
                     logger.error(f"         event      : {event_edges}")
@@ -155,7 +154,7 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
             response_edges, response_unit = self._image_response.axes[name].edges, self._image_response.axes[name].unit
 
             if np.all(event_edges == response_edges):
-                logger.info(f"    --> pass (edges)")
+                logger.info("    --> pass (edges)")
             else:
                 logger.error(f"Warning: the edges of the axis {name} are not consistent between the event and background!")
                 logger.error(f"        event      : {event_edges}")
@@ -186,7 +185,7 @@ class DataIF_COSI_DC2(ImageDeconvolutionDataInterfaceBase):
                                               unit = bkg_model.unit,
                                               copy_contents = False) # overwrite axes of existing Histogram
 
-        logger.info(f"The axes in the event and background files are redefined. Now they are consistent with those of the response file.")
+        logger.info("The axes in the event and background files are redefined. Now they are consistent with those of the response file.")
 
         return True
 

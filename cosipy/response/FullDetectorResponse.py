@@ -3,7 +3,6 @@ from pathlib import Path
 import numpy as np
 
 import h5py as h5
-import hdf5plugin
 
 from astropy.units import Quantity
 import astropy.units as u
@@ -983,7 +982,6 @@ def cosi_response(argv=None):
     from yayc import Configurator
     import matplotlib.pyplot as plt
     from mhealpy import HealpixMap
-    from astropy.coordinates import SkyCoord
 
     # Parse arguments from commandline
     apar = argparse.ArgumentParser(

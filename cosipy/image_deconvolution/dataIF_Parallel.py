@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 
 import logging
 logger = logging.getLogger(__name__)
@@ -17,7 +16,6 @@ except ModuleNotFoundError as e:
 import h5py
 from histpy import Histogram, Axes, Axis, HealpixAxis
 
-from cosipy.response import FullDetectorResponse
 from cosipy.image_deconvolution import ImageDeconvolutionDataInterfaceBase
 
 def load_response_matrix(comm, start_col, end_col, filename):

@@ -5,7 +5,6 @@ from scoords import SpacecraftFrame
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
-from histpy import Histogram, HealpixAxis, Axis
 
 from cosipy import test_data
 from cosipy.response import FullDetectorResponse

@@ -2,7 +2,6 @@ from histpy import Histogram
 
 import numpy as np
 import astropy.units as u
-from scoords import SpacecraftFrame, Attitude
 
 from .functions import get_integrated_spectral_model
 
@@ -72,7 +71,7 @@ class PointSourceResponse(Histogram):
 
         else:
 
-            if not 'Pol' in self.axes.labels:
+            if 'Pol' not in self.axes.labels:
                 
                 raise RuntimeError("Response must have polarization angle axis to include polarization in point source response")
 

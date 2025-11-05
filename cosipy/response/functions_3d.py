@@ -6,7 +6,6 @@ from scipy import integrate
 from scipy.interpolate import interp1d
 from histpy import Histogram
 
-import sys
 
 import logging
 logger = logging.getLogger(__name__)

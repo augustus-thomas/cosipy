@@ -8,7 +8,7 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
 from cosipy.spacecraftfile import SpacecraftFile
-from cosipy.response import FullDetectorResponse, ExtendedSourceResponse
+from cosipy.response import FullDetectorResponse
 
 # file path
 full_detector_response_path = "SMEXv12.Continuum.HEALPixO3_10bins_log_flat.binnedimaging.imagingresponse.nonsparse_nside8.area.good_chunks_unzip.h5"

@@ -1,7 +1,5 @@
-import numpy as np
 import astropy.units as u
 import astropy.io.fits as fits
-import functools
 from abc import ABC, abstractmethod
 import logging
 logger = logging.getLogger(__name__)
@@ -46,7 +44,7 @@ class DeconvolutionAlgorithmBase(ABC):
         self.dict_dataset_indexlist_for_bkg_models = {}
         for data in self.dataset:
             for key in data.keys_bkg_models():
-                if not key in self.dict_bkg_norm.keys():
+                if key not in self.dict_bkg_norm.keys():
                     self.dict_bkg_norm[key] = 1.0
                     self.dict_dataset_indexlist_for_bkg_models[key] = []
         

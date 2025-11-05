@@ -5,7 +5,6 @@ import numpy as np
 
 from histpy import Histogram
 
-import astropy.units as u
 
 class DetectorResponse(Histogram):
     """

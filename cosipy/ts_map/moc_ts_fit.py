@@ -312,7 +312,7 @@ class MOCTSMap(FastTSMap):
         else:
             plotMoll, projMoll = moc_map.plot(ax = axMoll, vmin = max_ts-critical, vmax = max_ts)
             
-        moc_map.plot_grid(ax = plt.gca(), color = 'grey', linewidth = 0.1);
+        moc_map.plot_grid(ax = plt.gca(), color = 'grey', linewidth = 0.1)
         
         
         # plot the sky cooordinates if given
@@ -323,7 +323,7 @@ class MOCTSMap(FastTSMap):
                         verticalalignment='center',
                         transform = axMoll.get_transform('world'), color = "red")
 
-        if save_plot == True:
+        if save_plot:
 
             fig.savefig(Path(save_dir)/save_name, dpi = dpi)
     

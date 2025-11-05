@@ -1,11 +1,7 @@
-from histpy import Histogram
-from pathlib import Path
 from cosipy.response import FullDetectorResponse
 import h5py as h5
-from histpy import Histogram, Axis, Axes
+from histpy import Axes
 from cosipy.response import PointSourceResponse, ExtendedSourceResponse
-import sys
-from mhealpy import HealpixMap
 
 class SourceInjector():
 

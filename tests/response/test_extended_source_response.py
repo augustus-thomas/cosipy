@@ -2,7 +2,7 @@ from cosipy import test_data
 from cosipy.response import ExtendedSourceResponse
 from cosipy.image_deconvolution import AllSkyImageModel
 
-from astromodels import Gaussian, Gaussian_on_sphere, ExtendedSource, Model, load_model
+from astromodels import Gaussian, Gaussian_on_sphere, ExtendedSource, load_model
 import astropy.units as u 
 
 extended_response_path = test_data.path/"test_precomputed_response.h5"
@@ -23,7 +23,7 @@ def test_get_expectation():
 
     hist = resp.get_expectation(allsky_imagemodel)
 
-    assert isinstance(hist[:], u.quantity.Quantity) == True
+    assert isinstance(hist[:], u.quantity.Quantity)
 
 def test_get_expectation_from_astromodel():
 
@@ -50,7 +50,7 @@ def test_get_expectation_from_astromodel():
     # Calculate the expectation
     hist = resp.get_expectation_from_astromodel(extended_model)
 
-    assert isinstance(hist[:], u.quantity.Quantity) == True
+    assert isinstance(hist[:], u.quantity.Quantity)
 
 def test_get_expectation_from_astromodel_3d():
 
@@ -64,4 +64,4 @@ def test_get_expectation_from_astromodel_3d():
     # Calculate the expectation
     hist = resp.get_expectation_from_astromodel(extended_model.galprop_source)
 
-    assert isinstance(hist[:], u.quantity.Quantity) == True
+    assert isinstance(hist[:], u.quantity.Quantity)

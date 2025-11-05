@@ -1,4 +1,3 @@
-import pytest
 import astropy.units as u
 import numpy as np
 from astromodels import Gaussian, Gaussian_on_sphere, ExtendedSource

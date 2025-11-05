@@ -4,7 +4,7 @@ from tqdm.autonotebook import tqdm
 import sparse
 import astropy.units as u
 from astropy.time import Time
-from astropy.coordinates import SkyCoord, cartesian_to_spherical, Galactic
+from astropy.coordinates import SkyCoord, cartesian_to_spherical
 
 from scoords import Attitude, SpacecraftFrame
 from histpy import Histogram, Axes, Axis, HealpixAxis

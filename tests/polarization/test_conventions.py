@@ -1,6 +1,5 @@
 import numpy as np
-import pytest
-from astropy.coordinates import SkyCoord, Angle
+from astropy.coordinates import SkyCoord
 import astropy.units as u
 from cosipy.polarization import OrthographicConvention, StereographicConvention
 from scoords import SpacecraftFrame

@@ -1,9 +1,7 @@
 # Import
 from cosipy.data_io import UnBinnedData 
-import matplotlib.pyplot as plt
 import numpy as np
 import sys
-import pandas as pd
 import logging
 logger = logging.getLogger(__name__)
 
@@ -71,7 +69,7 @@ class ReadTraTest(UnBinnedData):
          
         # Check if file exists:
         Reader = M.MFileEventsTra()
-        if Reader.Open(M.MString(tra_file)) == False:
+        if not Reader.Open(M.MString(tra_file)):
             logger.error("Unable to open file %s. Aborting!" %self.data_file)
             sys.exit()
 

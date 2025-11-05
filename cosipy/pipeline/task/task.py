@@ -4,7 +4,8 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(filename)s:%(lineno)
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-import argparse, textwrap
+import argparse
+import textwrap
 
 from yayc import Configurator
 

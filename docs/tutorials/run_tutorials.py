@@ -274,7 +274,7 @@ def main():
 
     # Overall summary log
     logger.info(f"cosipy version: {cosipy.__version__}")
-    logger.info(f"Run summary:")
+    logger.info("Run summary:")
     for tutorial,results in summary.items():
 
         succeeded = results['succeeded']

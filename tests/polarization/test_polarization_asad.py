@@ -4,7 +4,7 @@ from astropy import units as u
 from scoords import SpacecraftFrame
 
 from cosipy.polarization import PolarizationASAD
-from cosipy.polarization.conventions import IAUPolarizationConvention, MEGAlibRelativeZ
+from cosipy.polarization.conventions import MEGAlibRelativeZ
 from cosipy.spacecraftfile import SpacecraftFile
 from cosipy import UnBinnedData
 from cosipy.threeml.custom_functions import Band_Eflux

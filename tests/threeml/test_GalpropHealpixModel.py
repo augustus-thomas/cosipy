@@ -1,7 +1,7 @@
 from cosipy.threeml.custom_functions import GalpropHealpixModel
 from cosipy import test_data
 import numpy as np
-from  astropy.coordinates import Galactic, ICRS
+from  astropy.coordinates import ICRS
 from astromodels import ExtendedSource, Model
 
 def test_GalpropHealpixModel(tmp_path):
@@ -36,7 +36,7 @@ def test_GalpropHealpixModel(tmp_path):
     # Re-evaluate b/c coords will now be converted to galactic,
     # since coords are expected to match frame:
     flux_icrs = galprop_model.evaluate(l, b, e, 1)
-    assert np.array_equal(flux,flux_icrs) == False 
+    assert not np.array_equal(flux,flux_icrs)
 
     # Test integration method:
     galprop_model.get_total_spatial_integral(e, avg_int=True, nside=2)

@@ -1,10 +1,9 @@
 # Imports:
 from cosipy import BinnedData
 from cosipy import test_data
-import os, sys
+import os
 import numpy as np
 import pytest
-from pathlib import Path
 
 # Need to change the backend, 
 # otherwise testing plots can take long time (particularly with ssh):

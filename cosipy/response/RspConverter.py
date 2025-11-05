@@ -814,7 +814,7 @@ class RspConverter():
                     f.write(f"AD {order} RING\n")
 
                 else:
-                    f.write(f"AT 1D BinEdges\n")
+                    f.write("AT 1D BinEdges\n")
 
                     edges = np.array_str(axis.edges.value,
                                          max_line_width=100000000).strip("[] ")

@@ -3,7 +3,7 @@ from cosipy import COSILike
 import numpy as np
 
 from threeML import *
-from threeML import Band, PointSource, Model, JointLikelihood, DataList
+from threeML import JointLikelihood, DataList
 from astromodels import Parameter
 from astropy import units as u
 

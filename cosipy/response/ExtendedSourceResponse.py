@@ -1,8 +1,7 @@
 from histpy import Histogram
 import numpy as np
 import astropy.units as u
-import gc
-from astromodels.functions.function import Function1D, FunctionMeta, ModelAssertionViolation, Function2D, Function3D
+from astromodels.functions.function import Function3D
 from .functions import get_integrated_extended_model
 from .functions_3d import get_integrated_extended_model_3d
 
@@ -93,7 +92,7 @@ class ExtendedSourceResponse(Histogram):
             return Histogram(edges=self.axes[2:], contents=contents, copy_contents=False)
         
         else:
-            raise ValueError(f"The input allskymodel mismatches with the extended source response.")
+            raise ValueError("The input allskymodel mismatches with the extended source response.")
 
     def get_expectation_from_astromodel(self, source):
         """

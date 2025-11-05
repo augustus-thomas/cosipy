@@ -1,7 +1,6 @@
 import numpy as np
 from astropy.coordinates import SkyCoord, Angle
 import astropy.units as u
-from scoords import SpacecraftFrame
 
 from .conventions import PolarizationConvention
 

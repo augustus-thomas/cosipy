@@ -1,5 +1,4 @@
 from cosipy import test_data
-from pytest import approx
 from cosipy import SpacecraftFile
 import numpy as np
 import astropy.units as u

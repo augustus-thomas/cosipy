@@ -3,11 +3,9 @@ import matplotlib.pyplot as plt
 import astropy.units as u
 from astropy.io import fits
 from astropy.time import Time, TimeDelta
-from astropy.coordinates import SkyCoord, cartesian_to_spherical, Galactic
+from astropy.coordinates import SkyCoord, cartesian_to_spherical
 from mhealpy import HealpixMap
-import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-from matplotlib import cm, colors
 from scipy import interpolate
 
 from scoords import Attitude, SpacecraftFrame
@@ -436,7 +434,7 @@ class SpacecraftFile():
             self.attitude = self.get_attitude()
 
         self.target_name = target_name
-        if quiet == False:
+        if not quiet:
             logger.info("Now converting to the Spacecraft frame...")
         self.src_path_cartesian = SkyCoord(np.dot(self.attitude.rot.inv().as_matrix(), target_coord.cartesian.xyz.value),
                                            representation_type = 'cartesian',
@@ -447,15 +445,15 @@ class SpacecraftFile():
         self.src_path_spherical = cartesian_to_spherical(self.src_path_cartesian.x,
                                                          self.src_path_cartesian.y,
                                                          self.src_path_cartesian.z)
-        if quiet == False:
-            logger.info(f"Conversion completed!")
+        if not quiet:
+            logger.info("Conversion completed!")
 
         # generate the numpy array of l and b to save to a npy file
         l = np.array(self.src_path_spherical[2].deg)  # note that 0 is Quanty, 1 is latitude and 2 is longitude and they are in rad not deg
         b = np.array(self.src_path_spherical[1].deg)
         self.src_path_lb = np.stack((l,b), axis=-1)
 
-        if save == True:
+        if save:
             np.save(self.target_name+"_source_path_in_SC_frame", self.src_path_lb)
 
         # convert to SkyCoord objects to get the output object of this method
@@ -537,7 +535,7 @@ class SpacecraftFile():
 
         self.dwell_map.to(u.second, update = False, copy = False)
             
-        if save == True:
+        if save:
             self.dwell_map.write_map(self.target_name + "_DwellMap.fits", overwrite = True)
 
         return self.dwell_map
@@ -623,7 +621,7 @@ class SpacecraftFile():
         return h_ori
 
 
-    def get_psr_rsp(self, response = None, dwell_map = None, dts = None, pa_convention=None):
+    def get_psr_rsp(self, response = None, dwell_map = None, dts = None, pa_convention = None):
 
         """
         Generates the point source response based on the response file and dwell time map.
@@ -660,7 +658,7 @@ class SpacecraftFile():
              Polarization convention of response ('RelativeX', 'RelativeY', or 'RelativeZ') 
         """
 
-        if response == None:
+        if response is None:
             pass # will use the response defined in the previous steps
         else:
             self.response_file = response
@@ -670,7 +668,7 @@ class SpacecraftFile():
         else:
             self.dwell_map = HealpixMap.read_map(dwell_map)
 
-        if dts == None:
+        if dts is None:
             self.dts = self.get_time_delta()
         else:
             self.dts = TimeDelta(dts*u.second)
@@ -714,7 +712,7 @@ class SpacecraftFile():
             The name of the arf file to save. (the default is `None`, which implies that the saving name will be the target name of the instance).
         """
 
-        if out_name == None:
+        if out_name is None:
             self.out_name = self.target_name
         else:
             self.out_name = out_name
@@ -768,7 +766,7 @@ class SpacecraftFile():
             The name of the arf file to save. (the default is None, which implies that the saving name will be the target name of the instance).
         """
 
-        if out_name == None:
+        if out_name is None:
             self.out_name = self.target_name
         else:
             self.out_name = out_name
@@ -924,26 +922,26 @@ class SpacecraftFile():
         self.src_counts = src_counts
         self.errors = errors
 
-        if bkg_file != None:
+        if bkg_file is not None:
             self.bkg_file = bkg_file
         else:
             self.bkg_file = "None"
         
         self.bkg_file = bkg_file
 
-        if rmf_file != None:
+        if rmf_file is not None:
             self.rmf_file = rmf_file
         else:
             self.rmf_file = f'{self.out_name}.rmf'
 
-        if arf_file != None:
+        if arf_file is not None:
             self.arf_file = arf_file
         else:
             self.arf_file = f'{self.out_name}.arf'
 
-        if exposure_time != None:
+        if exposure_time is not None:
             self.exposure_time = exposure_time
-        if dts != None:
+        if dts is not None:
             self.dts = self.__str_or_array(dts)
             self.exposure_time = self.dts.sum()
         self.telescope = telescope
@@ -1025,12 +1023,12 @@ class SpacecraftFile():
             The dpi of the saved image (the default is 300).
         """
 
-        if file_name != None:
+        if file_name is not None:
             self.file_name = file_name
         else:
             self.file_name = f'{self.out_name}.arf'
 
-        if save_name != None:
+        if save_name is not None:
             self.save_name = save_name
         else:
             self.save_name = self.out_name
@@ -1077,12 +1075,12 @@ class SpacecraftFile():
             The dpi of the saved image (the default is 300).
         """
 
-        if file_name != None:
+        if file_name is not None:
             self.file_name = file_name
         else:
             self.file_name = f'{self.out_name}.rmf'
 
-        if save_name != None:
+        if save_name is not None:
             self.save_name = save_name
         else:
             self.save_name = self.out_name

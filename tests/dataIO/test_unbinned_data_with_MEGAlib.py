@@ -5,14 +5,13 @@ from cosipy import ReadTraTest
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
 
 # For comparing dataIO calculation to MEGAlib:
 def compare(original,new,title,make_plots=False):
 
     diff = (original - new)
 
-    if make_plots == True:
+    if make_plots:
         plt.plot(diff,ls="",marker='o')
         plt.xlabel("Event")
         plt.ylabel("original - new")

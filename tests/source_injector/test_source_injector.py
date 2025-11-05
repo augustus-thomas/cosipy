@@ -42,7 +42,7 @@ def test_inject_point_source():
 
     results = injected_crab_signal.project("Em").to_dense().contents
 
-    assert isinstance(results, u.quantity.Quantity) == True
+    assert isinstance(results, u.quantity.Quantity)
 
     assert np.allclose(results.value,
                        [5.42040095e-01, 1.12762256e+00, 8.78432091e-01, 4.49743480e-01,
@@ -80,7 +80,7 @@ def test_inject_point_source_galactic():
 
     results = injected_crab_signal.project("Em").to_dense().contents
 
-    assert isinstance(results, u.quantity.Quantity) == True
+    assert isinstance(results, u.quantity.Quantity)
 
     assert np.allclose(results.value,
                        [8.00446239e-02, 2.39541274e-01, 3.06395646e-01, 2.90215536e-01,
@@ -205,7 +205,7 @@ def test_inject_extended_source():
 
     hist = injected.project("Em").to_dense().contents
 
-    assert isinstance(hist, u.quantity.Quantity) == True
+    assert isinstance(hist, u.quantity.Quantity)
     assert np.sum(hist[:].value) > 0  # ensure there is some non-zero expectation
 
 

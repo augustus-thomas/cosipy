@@ -5,7 +5,6 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 
-from yayc import Configurator
 
 from astropy import units as u
 
@@ -20,7 +19,6 @@ except ModuleNotFoundError as e:
 
 from histpy import Histogram
 
-from cosipy.response import FullDetectorResponse
 from cosipy.image_deconvolution import ImageDeconvolution, DataIF_Parallel, DataIF_COSI_DC2, ParallelImageDeconvolution
 
 # Define MPI variables
@@ -102,7 +100,7 @@ def main():
 
     else:
 
-        logger.info(f"Running with no MPI parallelization")
+        logger.info("Running with no MPI parallelization")
 
         bkg = Histogram.open(bkg_file)
         event = Histogram.open(data_file)

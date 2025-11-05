@@ -1,20 +1,16 @@
-from histpy import Histogram, Axis, Axes
+from histpy import Histogram, Axes
 import h5py as h5
-import sys
-from cosipy import SpacecraftFile
 from cosipy.response import PointSourceResponse
 import healpy as hp
 from mhealpy import HealpixMap
 import numpy as np
 import os
 import multiprocessing
-from itertools import product
 from .fast_norm_fit import FastNormFit as fnf
 from pathlib import Path
 from cosipy.response import FullDetectorResponse
 import time
 import scipy.stats
-import os
 import psutil
 import gc
 import matplotlib.pyplot as plt
@@ -514,7 +510,7 @@ class FastTSMap():
         hp.projscatter(0, 0, marker = "o", linewidths = 0.5, lonlat=True, coord = "G", color = "red")
         hp.projtext(350, 0, "(l=0, b=0)", lonlat=True, coord = "G", color = "red")
 
-        if save_plot == True:
+        if save_plot:
 
             fig.savefig(Path(save_dir)/save_name, dpi = dpi)
 

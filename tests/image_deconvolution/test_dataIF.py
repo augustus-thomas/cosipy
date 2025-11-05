@@ -1,7 +1,6 @@
-import pytest
 from histpy import Histogram
 
-from cosipy.image_deconvolution import ImageDeconvolutionDataInterfaceBase, DataIF_COSI_DC2, CoordsysConversionMatrix, AllSkyImageModel
+from cosipy.image_deconvolution import DataIF_COSI_DC2, CoordsysConversionMatrix, AllSkyImageModel
 from cosipy.response import FullDetectorResponse
 from cosipy import test_data
 

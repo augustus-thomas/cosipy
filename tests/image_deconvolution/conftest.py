@@ -1,7 +1,7 @@
 import pytest
 
 import numpy as np
-from histpy import Histogram, Axis, Axes
+from histpy import Histogram, Axes
 
 from cosipy import test_data
 from cosipy.image_deconvolution import DataIF_COSI_DC2, AllSkyImageModel

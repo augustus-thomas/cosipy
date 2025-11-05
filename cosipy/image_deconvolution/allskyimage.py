@@ -5,7 +5,7 @@ import healpy as hp
 import logging
 logger = logging.getLogger(__name__)
 
-from histpy import Histogram, Axes, Axis, HealpixAxis
+from histpy import Axes, Axis, HealpixAxis
 
 from cosipy.response.functions import get_integrated_spectral_model
 

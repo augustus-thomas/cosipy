@@ -1,20 +1,16 @@
 from astromodels.functions.function import Function1D, FunctionMeta, ModelAssertionViolation, Function2D, Function3D
 import astromodels.functions.numba_functions as nb_func
 from astromodels.utils.angular_distance import angular_distance
-from threeML import Band, DiracDelta, Constant, Line, Quadratic, Cubic, Quartic, StepFunction, StepFunctionUpper, Cosine_Prior, Uniform_prior, PhAbs, Gaussian
+from threeML import Band
 import astropy.units as astropy_units
-from astropy.units import Quantity
 from past.utils import old_div
-from scipy.special import gammainc, expi
-from scipy.interpolate import interp1d, RegularGridInterpolator
+from scipy.interpolate import interp1d
 from scipy import integrate
 import numpy as np
-import math
 import astropy.units as u
 from astropy.io import fits
 import healpy as hp
-from histpy import Histogram, Axes, Axis
-from astropy.coordinates import BaseCoordinateFrame, ICRS, Galactic, SkyCoord
+from astropy.coordinates import BaseCoordinateFrame, Galactic, SkyCoord
 
 import logging
 logger = logging.getLogger(__name__)
@@ -355,7 +351,7 @@ class GalpropHealpixModel(Function3D, metaclass=FunctionMeta):
         "param v: version number, either 57 (default) or 54.
         """
         
-        if not v in [54,57]:
+        if v not in [54,57]:
             raise ValueError("GALPROP version must be 54 or 57.")
 
         self._gal_version = v
@@ -390,10 +386,10 @@ class GalpropHealpixModel(Function3D, metaclass=FunctionMeta):
         if x.shape != y.shape:
             raise ValueError("x and y must have the same shape")
 
-        if self._fitsfile == None:
+        if self._fitsfile is None:
             raise RuntimeError("Need to either specify or load a fits file")
 
-        if self._file_loaded == False:
+        if not self._file_loaded:
             self.load_file(self._fitsfile)
 
         if self._frame != "galactic":
@@ -436,7 +432,7 @@ class GalpropHealpixModel(Function3D, metaclass=FunctionMeta):
 
         # access with results.optimized_model["galprop_source"].spatial_shape.nside
 
-        if nside != None:
+        if nside is not None:
             # Get spatial grid from nside
             n_pixels = hp.nside2npix(nside) 
             ipix = np.arange(n_pixels)
@@ -458,7 +454,7 @@ class GalpropHealpixModel(Function3D, metaclass=FunctionMeta):
         # We are calculating the average intensity (and not the total in)
         intensity_2d = np.sum(intensity_3d,axis=0)
 
-        if avg_int == True:
+        if avg_int:
             intensity_2d /= len(intensity_3d) # return average intensity
 
         return intensity_2d

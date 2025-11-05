@@ -1,29 +1,18 @@
 from threeML import PluginPrototype
-from threeML.minimizer import minimization
-from threeML.config.config import threeML_config
-from threeML.exceptions.custom_exceptions import FitFailed
 from astromodels import Parameter
 
 from cosipy.response.FullDetectorResponse import FullDetectorResponse
 from cosipy.response.ExtendedSourceResponse import ExtendedSourceResponse
 
-from scoords import SpacecraftFrame, Attitude
 
-from mhealpy import HealpixMap
 
-from cosipy.response import PointSourceResponse, DetectorResponse
-from histpy import Histogram
-import h5py as h5
-import sys
 
 import astropy.units as u
-import astropy.coordinates as coords
 
 from sparse import COO
 
 import numpy as np
 
-from scipy.special import factorial
 
 import collections
 
@@ -86,8 +75,8 @@ class COSILike(PluginPrototype):
                 self._coordsys = data.axes["PsiChi"].coordsys.name
         except:
             if coordsys == None:
-                raise RuntimeError(f"There is no coordinate system attached to the binned data. One must be provided by " 
-                                   f"specifiying coordsys='galactic' or 'spacecraftframe'")
+                raise RuntimeError("There is no coordinate system attached to the binned data. One must be provided by " 
+                                   "specifiying coordsys='galactic' or 'spacecraftframe'")
             else:
                 self._coordsys = coordsys
             
@@ -200,7 +189,7 @@ class COSILike(PluginPrototype):
 
                     logger.info(f"--> done (source name : {name})")
 
-                logger.info(f"--> all done")
+                logger.info("--> all done")
         
         # check if the source location is updated or not
         for name, source in point_sources.items():

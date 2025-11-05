@@ -1,4 +1,3 @@
-import pytest
 from cosipy.background_estimation import ContinuumEstimation
 from cosipy import test_data
 

@@ -1,8 +1,6 @@
 import numpy as np
 from astropy.coordinates import Angle, SkyCoord
 import astropy.units as u
-from astropy.stats import poisson_conf_interval
-from astropy.time import Time
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from cosipy.polarization.polarization_angle import PolarizationAngle
@@ -96,7 +94,7 @@ class PolarizationASAD():
 
         self._mu_100 = self.calculate_mu100(self._asads['polarized'], self._asads['unpolarized'], show_plots)
 
-        if show_plots == True:
+        if show_plots:
             titles = {'source': 'Source ASAD', 'source & background': 'Source+background ASAD', 'background': 'Background ASAD', 'unpolarized': 'Unpolarized ASAD'}
             for key in titles.keys():
                 if key == 'source & background' or key == 'background':
@@ -508,7 +506,7 @@ class PolarizationASAD():
         """
 
         plt.scatter(Angle(self._bins).degree, counts)
-        if not error is None:
+        if error is not None:
             plt.errorbar(Angle(self._bins).degree, counts, yerr=error, linewidth=0, elinewidth=1)
         plt.title(title)
         plt.xlabel('Azimuthal Scattering Angle (degrees)')
@@ -543,12 +541,12 @@ class PolarizationASAD():
         uncertainties = []
         for i in range(len(self._bins)):
             corrected.append(data_asad.contents.data[i] / np.sum(data_asad.contents.data) / unpolarized_asad.contents.data[i] * np.sum(unpolarized_asad.contents.data))
-            if not data_asad_uncertainties is None:
+            if data_asad_uncertainties is not None:
                 uncertainties.append(data_asad_uncertainties[i] / np.sum(data_asad.contents.data) / unpolarized_asad.contents.data[i] * np.sum(unpolarized_asad.contents.data))
 
         asad = Histogram(data_asad.axis.edges, contents=corrected, copy_contents=False)
 
-        if not data_asad_uncertainties is None:
+        if data_asad_uncertainties is not None:
             return asad, uncertainties
         else:
             return asad
@@ -639,13 +637,13 @@ class PolarizationASAD():
             logger.info('Fitted angle: ' + str(fitted_angle.degree) + ' deg')
             mu_100_list.append(mu_100['mu'])
             mu_100_uncertainties.append(mu_100['uncertainty'])
-            if show_plots == True:
+            if show_plots:
                 self.plot_asad(asad_polarized_corrected.contents.data, 'Corrected 100% Polarized ASAD (' + str(int(self._response.axes['Pol'].centers[i].to_value(u.deg))) + ' deg)', coefficients=coefficients)
 
         popt, pcov = curve_fit(self.constant, self._response.axes['Pol'].centers.to_value(u.deg), mu_100_list, sigma=mu_100_uncertainties)
         mu_100 = {'mu': popt[0], 'uncertainty': pcov[0][0]}
 
-        if show_plots == True:
+        if show_plots:
             plt.scatter(self._response.axes['Pol'].centers.to_value(u.deg), mu_100_list)
             plt.errorbar(self._response.axes['Pol'].centers.to_value(u.deg), mu_100_list, yerr=mu_100_uncertainties, linewidth=0, elinewidth=1)
             plt.plot([0, 175], [mu_100['mu'], mu_100['mu']])
@@ -699,7 +697,7 @@ class PolarizationASAD():
         if self._mdp > polarization['fraction']:
             logger.info('Polarization fraction is below MDP!', 'MDP: ', str(round(self._mdp, 3)))
 
-        if show_plots == True:
+        if show_plots:
             self.plot_asad(self._asads['source (corrected)'].contents.data, 'Corrected Source ASAD', self._sigma, coefficients=polarization['best fit parameter values'])
         
         return polarization

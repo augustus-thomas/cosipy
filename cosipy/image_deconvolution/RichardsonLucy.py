@@ -1,11 +1,8 @@
-import os
 import numpy as np
 import astropy.units as u
-import astropy.io.fits as fits
 import logging
 logger = logging.getLogger(__name__)
 
-from histpy import Histogram
 
 from .RichardsonLucySimple import RichardsonLucySimple
 
@@ -49,7 +46,7 @@ class RichardsonLucy(RichardsonLucySimple):
 
         # acceleration
         self.do_acceleration = parameter.get('acceleration:activate', False)
-        if self.do_acceleration == True:
+        if self.do_acceleration:
             self.alpha_max = parameter.get('acceleration:alpha_max', 1.0)
 
         # smoothing
@@ -62,7 +59,7 @@ class RichardsonLucy(RichardsonLucySimple):
         self.stopping_criteria_statistics = parameter.get('stopping_criteria:statistics', "log-likelihood")
         self.stopping_criteria_threshold  = parameter.get('stopping_criteria:threshold', 1e-2)
 
-        if not self.stopping_criteria_statistics in ["log-likelihood"]:
+        if self.stopping_criteria_statistics not in ["log-likelihood"]:
             raise ValueError
 
     def initialization(self):
@@ -192,7 +189,7 @@ class RichardsonLucy(RichardsonLucySimple):
         """
         finalization after running the image deconvolution
         """
-        if self.save_results == True:
+        if self.save_results:
             logger.info(f'Saving results in {self.save_results_directory}')
 
             counter_name = "iteration"

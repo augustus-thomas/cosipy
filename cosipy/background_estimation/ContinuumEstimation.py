@@ -1,14 +1,9 @@
 # Imports:
-import os
-from astropy.coordinates import SkyCoord
-from astropy import units as u
 from cosipy.response import FullDetectorResponse, DetectorResponse
 from cosipy import BinnedData
 from mhealpy import HealpixMap, HealpixBase
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import norm
-import numpy.ma as ma
 from tqdm import tqdm
 import logging
 logger = logging.getLogger(__name__)
@@ -140,7 +135,7 @@ class ContinuumEstimation:
         arm_mask = ~arm_mask
 
         # Plot cummulative distribution and corresponding masks:
-        if make_plots == True:
+        if make_plots:
             plt.plot(cumdist)
             plt.title("Cumulative Distribution")
             plt.xlabel("Pixel")
@@ -192,7 +187,7 @@ class ContinuumEstimation:
             # Search left:
             k = 1
             search_left = True
-            while search_left == True:
+            while search_left:
                 
                 if this_index-k < 0:
                     logger.info("Edge case!")
@@ -210,7 +205,7 @@ class ContinuumEstimation:
             # Search right:
             j = 1
             search_right = True
-            while search_right == True:
+            while search_right:
                
                 if this_index+j >= self.psr.axes['PsiChi'].nbins-1:
                     logger.info("Edge case!")
@@ -317,7 +312,7 @@ class ContinuumEstimation:
                     estimated_bg[E,s,sorted_indices[arm_mask][p]] = interp_list[p]
 
                 # Option to make some plots:
-                if make_plots == True:
+                if make_plots:
                     
                     # Plot true response:
                     m_dummy = HealpixMap(base = HealpixBase(npix = h.nbins), data = h.contents)

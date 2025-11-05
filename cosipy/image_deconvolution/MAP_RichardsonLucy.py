@@ -1,8 +1,6 @@
-import os
 import copy
 import numpy as np
 import astropy.units as u
-import astropy.io.fits as fits
 import logging
 logger = logging.getLogger(__name__)
 
@@ -81,7 +79,7 @@ class MAP_RichardsonLucy(RichardsonLucySimple):
         self.stopping_criteria_statistics = parameter.get('stopping_criteria:statistics', "log-posterior")
         self.stopping_criteria_threshold  = parameter.get('stopping_criteria:threshold', 1e-2)
 
-        if not self.stopping_criteria_statistics in ["log-likelihood", "log-posterior"]:
+        if self.stopping_criteria_statistics not in ["log-likelihood", "log-posterior"]:
             raise ValueError
 
     def load_gamma_prior(self, parameter):
@@ -307,7 +305,7 @@ class MAP_RichardsonLucy(RichardsonLucySimple):
         finalization after running the image deconvolution
         """
 
-        if self.save_results == True:
+        if self.save_results:
             logger.info(f'Saving results in {self.save_results_directory}')
 
             counter_name = "iteration"

@@ -1,5 +1,3 @@
-from cosipy.pipeline.src.io import load_binned_data
-from astropy.time import Time
 
 import numpy as np
 import matplotlib.pyplot as plt

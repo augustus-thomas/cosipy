@@ -16,12 +16,10 @@ from scoords import Attitude
 from scoords import SpacecraftFrame
 import logging
 import sys
-import math
 from tqdm import tqdm
 import subprocess
 import gc
 import os
-import time
 logger = logging.getLogger(__name__)
 
 
@@ -127,7 +125,7 @@ class UnBinnedData(DataIO):
 
         # This is for unit testing purposes only.
         # Use same value as MEGAlib for direct comparison: 
-        if run_test == True:
+        if run_test:
             c_E0 = 510.999
     
         # Event tracker:
@@ -321,7 +319,7 @@ class UnBinnedData(DataIO):
  
         # Check if the input data has pointing information, 
         # if not, set dummy values:
-        if (use_ori == False) & (len(lonZ)==0):
+        if (not use_ori) & (len(lonZ)==0):
              logger.warning("WARNING: No pointing information in input data and no ori file.")
              logger.warning("Setting pointing to arbitrary location (Galactic center).")
              lonX = np.array([0]*len(tt))
@@ -330,7 +328,7 @@ class UnBinnedData(DataIO):
              latZ = np.array([0]*len(tt))
 
         # Option to get X and Z pointing information from orientation file:
-        if use_ori == True:
+        if use_ori:
             self.instrument_pointing()
             lonX = self.xl_interp(tt)
             latX = self.xb_interp(tt)

@@ -1,7 +1,7 @@
 
 import numpy as np
 
-from numpy import log, sqrt, sqrt
+from numpy import log, sqrt
 from math import factorial
 
 class FastNormFit:

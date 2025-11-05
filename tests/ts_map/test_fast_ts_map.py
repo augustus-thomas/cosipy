@@ -1,5 +1,4 @@
 from cosipy import test_data
-from pytest import approx
 from threeML import Powerlaw
 from cosipy import FastTSMap, SpacecraftFile
 from histpy import Histogram

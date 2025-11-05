@@ -145,7 +145,7 @@ class ImageDeconvolution:
         # set self._model_class
         model_name = self.parameter['model_definition']['class']            # Options include "AllSkyImage", etc.
 
-        if not model_name in self.model_classes.keys():                     # See model_classes dictionary declared above
+        if model_name not in self.model_classes.keys():                     # See model_classes dictionary declared above
             logger.error(f'The model class "{model_name}" does not exist!')
             raise ValueError
 
@@ -191,7 +191,7 @@ class ImageDeconvolution:
         algorithm_name = parameter_deconvolution['algorithm']
         algorithm_parameter = Configurator(parameter_deconvolution['parameter'])
 
-        if not algorithm_name in self.deconvolution_algorithm_classes.keys():
+        if algorithm_name not in self.deconvolution_algorithm_classes.keys():
             logger.error(f'The algorithm "{algorithm_name}" does not exist!')
             raise ValueError
 
@@ -215,7 +215,7 @@ class ImageDeconvolution:
         """
         logger.info("#### Image Deconvolution Starts ####")
        
-        logger.info(f"<< Initialization >>")
+        logger.info("<< Initialization >>")
 
         self._deconvolution.initialization()
         
@@ -229,7 +229,7 @@ class ImageDeconvolution:
 
     def _finalize(self):
 
-        logger.info(f"<< Finalization >>")
+        logger.info("<< Finalization >>")
         self._deconvolution.finalization()
 
         logger.info("#### Image Deconvolution Finished ####")

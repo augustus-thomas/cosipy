@@ -1,21 +1,16 @@
 import numpy as np
-from numpy import array_equal as arr_eq
-from histpy import Histogram, Axes, Axis
+from histpy import Histogram
 from scoords import SpacecraftFrame
-from astropy.coordinates import SkyCoord
 import astropy.units as u
-import h5py as h5
 from astropy.time import Time
 from astromodels.core.polarization import LinearPolarization
-from mhealpy import HealpixBase, HealpixMap
+from mhealpy import HealpixMap
 
 from cosipy import test_data
-from cosipy.response.FullDetectorResponse import cosi_response
-from cosipy.response import PointSourceResponse, FullDetectorResponse
+from cosipy.response import FullDetectorResponse
 
 from threeML import DiracDelta, Constant, Line, Quadratic, Cubic, Quartic 
 from threeML import StepFunction, StepFunctionUpper, GenericFunction
-from cosipy.threeml.custom_functions import SpecFromDat
 
 import pytest
 

@@ -1,11 +1,9 @@
 # Imports:
 import sys
 import numpy as np
-import h5py
 from histpy import Histogram, HealpixAxis, Axis, Axes
-from scoords import SpacecraftFrame, Attitude
+from scoords import SpacecraftFrame
 from mhealpy import HealpixMap, HealpixBase
-import healpy as hp
 import pandas as pd
 import matplotlib.pyplot as plt
 from cosipy.data_io import UnBinnedData
@@ -131,7 +129,7 @@ class BinnedData(UnBinnedData):
         self.get_binning_info()
 
         # Plot the binned data:
-        if make_binning_plots == True:
+        if make_binning_plots:
             self.plot_binned_data(show_plots=show_plots)  
 
         return
@@ -252,7 +250,7 @@ class BinnedData(UnBinnedData):
             plt.xlabel(each["xlabel"],fontsize=12)
             plt.ylabel(each["ylabel"], fontsize=12)
             plt.savefig(each["savefig"])
-            if show_plots == True:
+            if show_plots:
                 plt.show()
             plt.close() 
  
@@ -285,7 +283,7 @@ class BinnedData(UnBinnedData):
         ax.get_figure().set_figheight(3)
         plt.title("PsiChi Binning (counts)")
         plt.savefig("psichi_default.png",bbox_inches='tight')
-        if show_plots == True:
+        if show_plots:
             plt.show()
         plt.close()
 
@@ -330,7 +328,7 @@ class BinnedData(UnBinnedData):
         ax.get_figure().set_figwidth(6)
         ax.get_figure().set_figheight(3)
         plt.savefig("%s.pdf" %output,bbox_inches='tight')
-        if show_plots == True:
+        if show_plots:
             plt.show()
         plt.close()
 
@@ -342,7 +340,7 @@ class BinnedData(UnBinnedData):
             ax.get_figure().set_figwidth(6)
             ax.get_figure().set_figheight(3)
             plt.savefig("%s_rotated.pdf" %output,bbox_inches='tight')
-            if show_plots == True:
+            if show_plots:
                 plt.show()
             plt.close()
 
@@ -403,7 +401,7 @@ class BinnedData(UnBinnedData):
         # Save and show:
         if output_name != None:
             plt.savefig("%s.pdf" %output_name)
-        if show_plots == True:
+        if show_plots:
             plt.show()
         plt.close()
 
@@ -434,11 +432,11 @@ class BinnedData(UnBinnedData):
             self.get_binning_info() 
 
         # Option to normalize by total time:
-        if time_rate==False:
+        if not time_rate:
             raw_rate = self.energy_hist/self.energy_bin_widths
             ylabel = "$\mathrm{ct \ keV^{-1}}$"
             data_label = "Rate[ct/keV]"
-        if time_rate==True:
+        else:
             raw_rate = self.energy_hist/self.energy_bin_widths/self.total_time
             ylabel = "$\mathrm{ct \ keV^{-1} \ s^{-1}}$"
             data_label = "Rate[ct/keV/s]"
