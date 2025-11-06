@@ -141,7 +141,8 @@ class SpecFromDat(Function1D, metaclass=FunctionMeta):
 
             result = np.zeros(x.shape) * K * 0
 
-            for i in range(len(x)): result[i] += K*fun(x[i])
+            for i in range(len(x)): 
+                result[i] += K*fun(x[i])
             return result
 
 

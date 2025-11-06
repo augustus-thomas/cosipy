@@ -1,5 +1,6 @@
 from cosipy import BinnedData
 from cosipy.spacecraftfile import SpacecraftFile
+import numpy as np
 
 from astropy.time import Time
 

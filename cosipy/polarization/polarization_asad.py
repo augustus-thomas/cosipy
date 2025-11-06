@@ -61,12 +61,12 @@ class PolarizationASAD():
         self._source_vector = source_vector
         self._spectrum = source_spectrum
 
-        if not type(data) == list:
+        if type(data) is not list:
             self._data = [data]
         else:
             self._data = data
 
-        if not type(background) == list:
+        if type(background) is not list:
             self._background = [background]
         else:
             self._background = background
@@ -384,7 +384,7 @@ class PolarizationASAD():
 
         for i in range(len(self._data)):
 
-            if type(self._data[i]) == dict:
+            if type(self._data[i]) is dict:
 
                 azimuthal_angles = self.calculate_azimuthal_scattering_angles(self._data[i])
                 if i == 0:
@@ -405,7 +405,7 @@ class PolarizationASAD():
 
         for i in range(len(self._background)):
 
-            if type(self._background[i]) == dict:
+            if type(self._background[i]) is dict:
 
                 azimuthal_angles = self.calculate_azimuthal_scattering_angles(self._background[i])
                 if i == 0:

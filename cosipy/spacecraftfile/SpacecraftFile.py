@@ -393,7 +393,7 @@ class SpacecraftFile():
 
             # Check if the inputs are SkyCoord objects
             for i in coord_list_of_path:
-                if type(i) != SkyCoord:
+                if type(i) is not SkyCoord:
                     raise ValueError("The coordiates must be a SkyCoord object")
 
             self.attitude = Attitude.from_axes(x=self.x_pointings,
@@ -496,7 +496,7 @@ class SpacecraftFile():
         else:
             path = src_path
         # check if the target source path is astropy.Skycoord object
-        if type(path) != SkyCoord:
+        if type(path) is not SkyCoord:
             raise TypeError("The coordinates of the source movement in the Spacecraft frame must be a SkyCoord object")
 
         if path.shape[0]-1 != self.dts.shape[0]:

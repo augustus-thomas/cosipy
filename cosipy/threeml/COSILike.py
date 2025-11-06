@@ -148,9 +148,9 @@ class COSILike(PluginPrototype):
             self._expected_counts[name] = total_expectation.copy()
 
             # Need to check if self._signal type is dense (i.e. 'Quantity') or sparse (i.e. 'COO').
-            if type(total_expectation.contents) == u.quantity.Quantity:
+            if type(total_expectation.contents) is u.quantity.Quantity:
                 total_expectation = total_expectation.contents.value
-            elif type(total_expectation.contents) == COO:
+            elif type(total_expectation.contents) is COO:
                 total_expectation = total_expectation.contents.todense() 
             else:
                 raise RuntimeError("Expectation is an unknown object")
@@ -224,9 +224,9 @@ class COSILike(PluginPrototype):
             self._expected_counts[name] = total_expectation.copy()
          
             # Need to check if self._signal type is dense (i.e. 'Quantity') or sparse (i.e. 'COO').
-            if type(total_expectation.contents) == u.quantity.Quantity:
+            if type(total_expectation.contents) is u.quantity.Quantity:
                 total_expectation = total_expectation.project(['Em', 'Phi', 'PsiChi']).contents.value
-            elif type(total_expectation.contents) == COO:
+            elif type(total_expectation.contents) is COO:
                 total_expectation = total_expectation.project(['Em', 'Phi', 'PsiChi']).contents.todense() 
             else:
                 raise RuntimeError("Expectation is an unknown object")
@@ -253,21 +253,21 @@ class COSILike(PluginPrototype):
         
         # Recompute the expectation if any parameter in the model changed
         if self._model is None:
-            log.error("You need to set the model first")
+            logger.error("You need to set the model first")
        
         # Set model:
         self.set_model(self._model)
         
         # Compute expectation including free background parameter:
         if self._fit_nuisance_params: 
-            if type(self._bkg.contents) == COO:
+            if type(self._bkg.contents) is COO:
                 expectation = self._signal + self._nuisance_parameters[self._bkg_par.name].value * self._bkg.contents.todense()
             else:
                 expectation = self._signal + self._nuisance_parameters[self._bkg_par.name].value * self._bkg.contents
         
         # Compute expectation without background parameter:
         else: 
-            if type(self._bkg.contents) == COO:
+            if type(self._bkg.contents) is COO:
                 expectation = self._signal + self._bkg.contents.todense()
             else:
                 expectation = self._signal + self._bkg.contents

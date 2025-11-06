@@ -291,7 +291,7 @@ class RspConverter():
                     break
 
                 case 'StopStream': # end of data for dense .rsp -- should never appear
-                    raise RunTimeError("StopStream encountered before StartStream")
+                    raise RuntimeError("StopStream encountered before StartStream")
 
                 case _: # any other field
                     hdr["headers"][key] = " ".join(line[1:])
