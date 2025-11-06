@@ -220,16 +220,16 @@ class FastTSMap():
 
             #time_coord_convert_start = time.time()
             # convert the hypothesis coord to the local frame (Spacecraft frame)
-            hypothesis_in_sc_frame = orientation.get_target_in_sc_frame(target_name = "Hypothesis", 
-                                                                        target_coord = hypothesis_coord, 
-                                                                        quiet = True)
+            hypothesis_in_sc_frame = orientation.get_target_in_sc_frame(target_coord = hypothesis_coord)
+            
             #time_coord_convert_end = time.time()
             #time_coord_convert_used = time_coord_convert_end - time_coord_convert_start
             #logger.info(f"The time used for coordinate conversion is {time_coord_convert_used}s.")
 
             #time_dwell_start = time.time()
             # get the dwell time map: the map of the time spent on each pixel in the local frame
-            dwell_time_map = orientation.get_dwell_map(response = response_path)
+            dwell_time_map = orientation.get_dwell_map(response = response_path,
+                                                       src_path = hypothesis_in_sc_frame)
             #time_dwell_end = time.time()
             #time_dwell_used = time_dwell_end - time_dwell_start
             #logger.info(f"The time used for dwell time map is {time_dwell_used}s.")

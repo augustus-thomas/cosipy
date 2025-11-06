@@ -54,7 +54,7 @@ def test_get_item():
         drmu = response.get_pixel(0, weight=1.0 * u.s)
 
         assert drmu.unit.is_equivalent('m2 s')
-                
+
         drm2 = response[0] # shorthand for get_pixel with unit weight
 
         assert drm == drm2

@@ -58,7 +58,7 @@ tutorials:
           checksum: eb72400a1279325e9404110f909c7785
 
     ts_map:
-      notebook: ts_map/Parallel_TS_map_computation.ipynb
+      notebook: ts_map/TS_map_fitting.ipynb
       wasabi_files:
         COSI-SMEX/cosipy_tutorials/grb_spectral_fit_local_frame/grb_binned_data.hdf5:
           checksum: fcf7022369b6fb378d67b780fc4b5db8

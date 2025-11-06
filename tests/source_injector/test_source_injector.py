@@ -36,7 +36,7 @@ def test_inject_point_source():
     # Get the data of the injected source
     injected_crab_signal = injector.inject_point_source(spectrum = spectrum, coordinate = source_coord,
                                                         orientation = ori, source_name = "point_source",
-                                                        make_spectrum_plot = False, data_save_path = None,
+                                                        make_spectrum_plot = False, make_PsiChi_plot = False ,data_save_path = None,
                                                         project_axes = None)
 
     results = injected_crab_signal.project("Em").to_dense().contents
@@ -44,9 +44,9 @@ def test_inject_point_source():
     assert isinstance(results, u.quantity.Quantity)
 
     assert np.allclose(results.value,
-                       [5.42040095e-01, 1.12762256e+00, 8.78432091e-01, 4.49743480e-01,
-                        2.14891073e-01, 1.01092299e-01, 4.78008233e-02, 1.51891001e-02,
-                        2.69585032e-03, 1.16440753e-04])
+                       [5.18769386e-01, 1.07545259e+00, 8.66760819e-01, 4.54548331e-01,
+                        2.18439534e-01, 1.03093234e-01, 4.93963707e-02, 1.64003979e-02,
+                        3.07634751e-03, 1.44128663e-04])
 
 
 def test_inject_point_source_galactic():
@@ -74,7 +74,7 @@ def test_inject_point_source_galactic():
     # Get the data of the injected source
     injected_crab_signal = injector.inject_point_source(spectrum = spectrum, coordinate = source_coord,
                                                         source_name = "point_source",
-                                                        make_spectrum_plot = True, data_save_path = None,
+                                                        make_spectrum_plot = True, make_PsiChi_plot=True , data_save_path = None,
                                                         project_axes = None)
 
     results = injected_crab_signal.project("Em").to_dense().contents
@@ -112,7 +112,7 @@ def test_inject_point_source_saving():
     # Get the data of the injected source
     injected_crab_signal = injector.inject_point_source(spectrum = spectrum, coordinate = source_coord,
                                                         source_name = "point_source",
-                                                        make_spectrum_plot = False, data_save_path = Path("./galactic_rsp.h5"),
+                                                        make_spectrum_plot = False, make_PsiChi_plot=False ,data_save_path = Path("./galactic_rsp.h5"),
                                                         project_axes = "Em")
 
     hist= Histogram.open(Path("./galactic_rsp.h5"))
@@ -161,7 +161,7 @@ def test_orientation_error():
         # Get the data of the injected source
         injected_crab_signal = injector.inject_point_source(spectrum = spectrum, coordinate = source_coord,
                                                             source_name = "point_source",
-                                                            make_spectrum_plot = False, data_save_path = None,
+                                                            make_spectrum_plot = False, make_PsiChi_plot=False ,data_save_path = None,
                                                             project_axes = None)
 
 
@@ -197,7 +197,8 @@ def test_inject_extended_source():
     # Get the data of the injected source
     injected = injector.inject_extended_source(
         source_model=model,
-        make_spectrum_plot=False,
+        make_spectrum_plot=True,
+        make_PsiChi_plot=True,
         data_save_path=None,
         project_axes=None,
     )
@@ -242,6 +243,7 @@ def test_inject_extended_source_saving():
     injected = injector.inject_extended_source(
         source_model=model,
         make_spectrum_plot=False,
+        make_PsiChi_plot=False,
         data_save_path=file_path,
         project_axes=None,
     )
@@ -280,3 +282,8 @@ def test_get_esr_error():
 
     with pytest.raises(RuntimeError): # Expect RuntimeError for invalid response file
         SourceInjector.get_esr(model, response_path)
+
+
+
+
+    

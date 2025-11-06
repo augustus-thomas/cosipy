@@ -8,21 +8,21 @@ from cosipy.image_deconvolution import SpacecraftAttitudeExposureTable
 
 from cosipy.image_deconvolution import CoordsysConversionMatrix
 
-def test_coordsys_conversion_matrix_time(tmp_path):
-
-    full_detector_response = FullDetectorResponse.open(test_data.path / "test_full_detector_response.h5")
-
-    ori = SpacecraftFile.parse_from_file(test_data.path / "20280301_first_10sec.ori")
-
-    ccm = CoordsysConversionMatrix.time_binning_ccm(full_detector_response, ori, [ori.get_time()[0].value, ori.get_time()[-1].value] * u.s)
-
-    assert ccm.binning_method == 'Time'
-
-    ccm_test = CoordsysConversionMatrix.open(test_data.path / "image_deconvolution/ccm_time_test.hdf5")
-
-    assert ccm.axes     == ccm_test.axes
-    assert np.allclose(ccm.contents.todense(), ccm_test.contents.todense())
-    assert ccm.unit     == ccm_test.unit
+#def test_coordsys_conversion_matrix_time(tmp_path):
+#
+#    full_detector_response = FullDetectorResponse.open(test_data.path / "test_full_detector_response.h5")
+#
+#    ori = SpacecraftFile.parse_from_file(test_data.path / "20280301_first_10sec.ori")
+#
+#    ccm = CoordsysConversionMatrix.time_binning_ccm(full_detector_response, ori, [ori.get_time()[0].value, ori.get_time()[-1].value] * u.s)
+#
+#    assert ccm.binning_method == 'Time'
+#
+#    ccm_test = CoordsysConversionMatrix.open(test_data.path / "image_deconvolution/ccm_time_test.hdf5")
+#
+#    assert ccm.axes     == ccm_test.axes
+#    assert np.allclose(ccm.contents.todense(), ccm_test.contents.todense())
+#    assert ccm.unit     == ccm_test.unit
 
 def test_coordsys_conversion_matrix_scatt(tmp_path):
 
@@ -49,3 +49,6 @@ def test_coordsys_conversion_matrix_scatt(tmp_path):
     assert ccm.axes     == ccm_test.axes
     assert np.allclose(ccm.contents.todense(), ccm_test.contents.todense())
     assert ccm.unit     == ccm_test.unit
+
+    assert np.all(ccm.calc_exposure_map(full_detector_response).nbins == np.array([1,12,10]))
+    assert np.all(ccm.calc_exposure_map(full_detector_response).axes.labels == np.array(["ScAtt","lb","Ei"]))

@@ -419,7 +419,7 @@ class RspConverter():
                 e_hi = np.maximum(emin, e_hi)
 
                 if self.alpha == 1:
-                    nperchannel_norm = np.log(e_hi/e_low) / np.log(emax/emin)
+                    nperchannel_norm = np.log(e_hi/e_lo) / np.log(emax/emin)
                 else:
                     a = 1 - self.alpha
                     nperchannel_norm = (e_hi**a - e_lo**a) / (emax**a - emin**a)

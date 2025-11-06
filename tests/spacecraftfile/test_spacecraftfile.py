@@ -30,6 +30,13 @@ def test_get_time_delta():
 
     assert np.allclose(time_delta.value, np.ones(10))
 
+def test_altitude():
+
+    ori_path = test_data.path / "20280301_first_10sec.ori"
+    ori = SpacecraftFile.parse_from_file(ori_path)
+    altitude = ori.get_altitude()
+
+    assert np.allclose(altitude, np.zeros(11))
 
 def test_get_attitude():
 
@@ -93,7 +100,7 @@ def test_get_target_in_sc_frame():
     target_name = "Crab"
     target_coord = SkyCoord(l=184.5551, b = -05.7877, unit = (u.deg, u.deg), frame = "galactic")
 
-    path_in_sc = ori.get_target_in_sc_frame(target_name, target_coord)
+    path_in_sc = ori.get_target_in_sc_frame(target_coord)
 
     assert np.allclose(path_in_sc.lon.deg,
                        np.array([118.393522, 118.425255, 118.456868, 118.488362, 118.519735,
@@ -112,14 +119,36 @@ def test_get_dwell_map():
 
     target_name = "Crab"
     target_coord = SkyCoord(l=184.5551, b = -05.7877, unit = (u.deg, u.deg), frame = "galactic")
-    path_in_sc = ori.get_target_in_sc_frame(target_name, target_coord)
+    path_in_sc = ori.get_target_in_sc_frame(target_coord)
 
-    dwell_map = ori.get_dwell_map(response = response_path)
+    dwell_map = ori.get_dwell_map(response = response_path,
+                                  src_path = path_in_sc)
 
     assert np.allclose(dwell_map[:].value,
                        np.array([1.895057, 7.615584, 0.244679, 0.244679, 0.000000, 0.000000,
                                 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000]))
 
+    dwell_map = ori.get_dwell_map(response = response_path,
+                                  src_path = path_in_sc,
+                                  interp = False)
+
+    assert np.allclose(dwell_map[:].value,
+                       np.array([ 0., 10.,  0.,  0.,  0., 0.,
+                                  0.,  0.,  0.,  0.,  0.,  0.]))
+
+def test_get_scatt_map():
+
+    response_path =test_data.path / "test_full_detector_response.h5"
+    ori_path = test_data.path / "20280301_first_10sec.ori"
+    ori = SpacecraftFile.parse_from_file(ori_path)
+
+    target_name = "Crab"
+    target_coord = SkyCoord(l=184.5551, b = -05.7877, unit = (u.deg, u.deg), frame = "galactic")
+
+    # test without earth occultation, as Crab is entirely occluded;
+    # TODO: use a better .ori file for testing
+    scatt_map = ori.get_scatt_map(nside=16, earth_occ=False)
+    ax_map = scatt_map.get_axes_map(nside=16)
 
 def test_get_psr_rsp():
 
@@ -129,11 +158,12 @@ def test_get_psr_rsp():
 
     target_name = "Crab"
     target_coord = SkyCoord(l=184.5551, b = -05.7877, unit = (u.deg, u.deg), frame = "galactic")
-    path_in_sc = ori.get_target_in_sc_frame(target_name, target_coord)
+    path_in_sc = ori.get_target_in_sc_frame(target_coord)
 
-    dwell_map = ori.get_dwell_map(response = response_path)
+    dwell_map = ori.get_dwell_map(response = response_path,
+                                  src_path = path_in_sc)
 
-    Ei_edges, Ei_lo, Ei_hi, Em_edges, Em_lo, Em_hi, areas, matrix = ori.get_psr_rsp()
+    Ei_edges, Ei_lo, Ei_hi, Em_edges, Em_lo, Em_hi, areas, matrix = ori.get_psr_rsp(response_path, dwell_map)
 
     assert np.allclose(Ei_edges, energy_edges)
 
@@ -193,11 +223,12 @@ def test_get_arf():
     target_name = "Crab"
     target_coord = SkyCoord(l=184.5551, b = -05.7877, unit = (u.deg, u.deg), frame = "galactic")
 
-    path_in_sc = ori.get_target_in_sc_frame(target_name, target_coord)
+    path_in_sc = ori.get_target_in_sc_frame(target_coord)
 
-    dwell_map = ori.get_dwell_map(response = response_path)
+    dwell_map = ori.get_dwell_map(response = response_path,
+                                  src_path = path_in_sc)
 
-    _ = ori.get_psr_rsp()
+    _ = ori.get_psr_rsp(response_path, dwell_map)
 
     ori.get_arf(out_name = "test")
 
@@ -222,11 +253,12 @@ def test_get_rmf():
     target_name = "Crab"
     target_coord = SkyCoord(l=184.5551, b = -05.7877, unit = (u.deg, u.deg), frame = "galactic")
 
-    path_in_sc = ori.get_target_in_sc_frame(target_name, target_coord)
+    path_in_sc = ori.get_target_in_sc_frame(target_coord)
 
-    dwell_map = ori.get_dwell_map(response = response_path)
+    dwell_map = ori.get_dwell_map(response = response_path,
+                                  src_path = path_in_sc)
 
-    _ = ori.get_psr_rsp()
+    _ = ori.get_psr_rsp(response_path, dwell_map)
 
     ori.get_rmf(out_name = "test")
 
@@ -269,9 +301,10 @@ def test_get_pha():
     target_name = "Crab"
     target_coord = SkyCoord(l=184.5551, b = -05.7877, unit = (u.deg, u.deg), frame = "galactic")
 
-    path_in_sc = ori.get_target_in_sc_frame(target_name, target_coord)
-    dwell_map = ori.get_dwell_map(response = response_path)
-    _ = ori.get_psr_rsp()
+    path_in_sc = ori.get_target_in_sc_frame(target_coord)
+    dwell_map = ori.get_dwell_map(response = response_path,
+                                  src_path = path_in_sc)
+    _ = ori.get_psr_rsp(response_path, dwell_map)
     ori.get_arf(out_name = "test")
     ori.get_rmf(out_name = "test")
 
@@ -306,9 +339,10 @@ def test_plot_arf():
     target_name = "Crab"
     target_coord = SkyCoord(l=184.5551, b = -05.7877, unit = (u.deg, u.deg), frame = "galactic")
 
-    path_in_sc = ori.get_target_in_sc_frame(target_name, target_coord)
-    dwell_map = ori.get_dwell_map(response = response_path)
-    _ = ori.get_psr_rsp()
+    path_in_sc = ori.get_target_in_sc_frame(target_coord)
+    dwell_map = ori.get_dwell_map(response = response_path,
+                                  src_path = path_in_sc)
+    _ = ori.get_psr_rsp(response_path, dwell_map)
     ori.get_arf(out_name = "test")
 
     ori.plot_arf()
@@ -327,9 +361,10 @@ def test_plot_rmf():
     target_name = "Crab"
     target_coord = SkyCoord(l=184.5551, b = -05.7877, unit = (u.deg, u.deg), frame = "galactic")
 
-    path_in_sc = ori.get_target_in_sc_frame(target_name, target_coord)
-    dwell_map = ori.get_dwell_map(response = response_path)
-    _ = ori.get_psr_rsp()
+    path_in_sc = ori.get_target_in_sc_frame(target_coord)
+    dwell_map = ori.get_dwell_map(response = response_path,
+                                  src_path = path_in_sc)
+    _ = ori.get_psr_rsp(response_path, dwell_map)
     ori.get_rmf(out_name = "test")
 
     ori.plot_rmf()
@@ -345,16 +380,27 @@ def test_source_interval():
     ori_path = test_data.path / "20280301_first_10sec.ori"
     ori = SpacecraftFile.parse_from_file(ori_path)
 
-    new_ori = ori.source_interval(Time(ori._load_time[0]+0.1, format = "unix"),
-                                  Time(ori._load_time[0]+2.1, format = "unix"))
+    times = ori.get_time().to_value(format = "unix")
+    new_ori = ori.source_interval(Time(times[0]+0.1, format = "unix"),
+                                  Time(times[0]+2.1, format = "unix"))
 
-    assert np.allclose(new_ori._load_time,
+    assert np.allclose(new_ori.get_time().to_value(format="unix"),
                        np.array([1.835478e+09, 1.835478e+09, 1.835478e+09, 1.835478e+09]))
 
-    assert np.allclose(new_ori._x_direction.flatten(),
-                       np.array([41.86062093, 73.14368765, 41.88225011, 73.09517927,
-                                 41.90629597, 73.0412838 , 41.9087019 , 73.03589454]))
+    assert np.allclose(np.sum(new_ori.livetime), (2.1 - 0.1))
 
-    assert np.allclose(new_ori._z_direction.flatten(),
-                       np.array([221.86062093,  16.85631235, 221.88225011,  16.90482073,
-                                221.90629597,  16.9587162 , 221.9087019 ,  16.96410546]))
+    print(new_ori.z_pointings.b.value)
+    assert np.allclose(new_ori.x_pointings.l.value,
+                       np.array([41.86062429, 41.88225011, 41.90629597, 41.90870524]))
+    assert np.allclose(new_ori.x_pointings.b.value,
+                       np.array([73.14368765, 73.09517927, 73.0412838, 73.03589454]))
+
+    assert np.allclose(new_ori.z_pointings.l.value,
+                       np.array([221.86062062, 221.88225011, 221.90629597, 221.90870159]))
+    assert np.allclose(new_ori.z_pointings.b.value,
+                       np.array([16.85631235, 16.90482073, 16.9587162,  16.96410546]))
+
+    new_ori = ori.source_interval(Time(times[0]+0.1, format = "unix"),
+                                  Time(times[0]+0.8, format = "unix"))
+
+    assert np.allclose(np.sum(new_ori.livetime), (0.8 - 0.1))

@@ -51,7 +51,7 @@ def test_binned_data(tmp_path):
     with pytest.raises(SystemExit) as pytest_wrapped_exp:
         analysis.time_bins = [0,1]
         analysis.get_binned_data()
-    assert pytest_wrapped_exp.type == SystemExit
+    assert pytest_wrapped_exp.type is SystemExit
 
     # Test loading binned data:
     analysis.load_binned_data_from_hdf5(tmp_path/"temp_binned_data.hdf5")

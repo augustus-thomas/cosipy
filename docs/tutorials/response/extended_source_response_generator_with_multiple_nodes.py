@@ -28,12 +28,11 @@ basename = "psr/psr_"
 
 for ipix_image in ipix_image_list:
 
-    psr = full_detector_response.get_point_source_response_per_image_pixel(ipix_image, orientation, 
+    psr = full_detector_response.get_point_source_response_per_image_pixel(ipix_image, orientation,
                                                                            coordsys='galactic',
                                                                            nside_image=None,
                                                                            nside_scatt_map=None,
                                                                            earth_occ=True)
-    
     psr.write(f"{basename}{ipix_image:08}.h5",overwrite = True)
 
 # see also merge_response_generated_with_mutiple_nodes.py to know how we can merge the above point source responses as a single extended source response.

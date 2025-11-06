@@ -383,8 +383,7 @@ class FullDetectorResponse(HealpixBase):
     def get_point_source_response(self,
                                   exposure_map = None,
                                   coord = None,
-                                  scatt_map = None,
-                                  earth_occ = True):
+                                  scatt_map = None):
         """
         Convolve this response with exposure for a point source at a
         given sky location.
@@ -396,31 +395,16 @@ class FullDetectorResponse(HealpixBase):
             spacecraft attitude map describing the exposure of the
             spacecraft to the source over time.
 
-        If a scatt_map is used, it is important to know whether the
-        weighting of each time bin accounts for earth occultation.  If
-        so, then the scatt_map depends on the source coordinate, and
-        the same (single) coordinate must be passed as an argument.
-        If earth occultation was not considered, the scatt_map is
-        independent of the source coordinate and may be used to
-        compute PSRs for many source coordinates at once; however, not
-        considering earth occultation results in a non-physical
-        result.
-
         Parameters
         ----------
         exposure_map : :py:class:`mhealpy.HealpixMap`
             Effective time spent by the source at each pixel location
             in spacecraft coordinates
         coord : :py:class:`astropy.coordinates.SkyCoord`
-            Source coordinate(s) for which we want to generate a PSR
+            Source coordinate for which we want to generate a PSR
         scatt_map : :py:class:`SpacecraftAttitudeMap`
             Spacecraft attitude map used to calculate source path over
             time in spacecraft coordinates
-        earth_occ : bool, optional
-            Option to include Earth occultation in the response
-            (scatt_map mode only). If True (the default), only one
-            source coordinate may be provided, which must be the same
-            as the one used to create the scatt_map.
 
         Returns
         -------
@@ -454,14 +438,32 @@ class FullDetectorResponse(HealpixBase):
 
             def rotate_coords(c, rot):
                 """
-                Apply a rotation matrix to one or more 3D directions
-                represented as Cartesian 3-vectors.  Return rotated directions
-                in polar form as a pair (co-latitude, longitude) in
-                radians.
+                Apply a rotation matrix to a direction represented as a
+                Cartesian 3-vector.  Can vectorize over arrays of either
+                matrices or vectors (but not both).
+
+                Return rotated direction(s) in polar form as a pair of
+                (vectors of) (co-latitude, longitude) in radians.
 
                 """
-                c_local = rot @ c
 
+                def matvec(A, b):
+                    """
+                    Do matrix-vector multiply A x b, for which either
+                    A or b (but not both) can be arrays of multiple
+                    matrices/vectors. (Numpy < 2.2 does not have
+                    such a function.)
+
+                    Inputs [n, p, m] x m   -> [p, n]
+                    Inputs [p, m] x [m, k] -> [p, k]
+
+                    """
+
+                    c = np.tensordot(A, b, (-1, 0))
+                    return c.T if b.ndim == 1 else c
+
+                # c_local = np.matvec(rot, c.T).T # eqv NP 2.2+
+                c_local = matvec(rot, c)
                 c_x, c_y, c_z = c_local
 
                 theta = np.arctan2(c_y, c_x)
@@ -474,18 +476,16 @@ class FullDetectorResponse(HealpixBase):
             if source is None or scatt_map is None:
                 raise ValueError("Provide either exposure map or source + scatt_map")
 
+            if source.size > 1:
+                raise ValueError("Only a single source coordinate is supported")
+
             if isinstance(source.frame, SpacecraftFrame):
                 raise ValueError("scatt_map is not supported for source in local coordinate frame")
 
-            if earth_occ and source.size > 1:
-                raise ValueError("For Earth occultation, only one source coordinate "
-                                 "(the one used to create the scatt map) is allowed")
-
             has_pol = ('Pol' in self._axes.labels and source.frame != 'spacecraftframe')
-            if has_pol and source.size > 1:
-                raise ValueError("For polarization, only a single source coordinate is supported")
 
-            source = np.atleast_1d(source)
+            if source.ndim > 0:
+                source = source[0]
 
             psr_axes = self._rest_axes
 
@@ -507,42 +507,39 @@ class FullDetectorResponse(HealpixBase):
                                                    source,
                                                    convention = pol_convention)
 
-            # output PSR accumulators
-            sf_psrs = tuple( np.zeros(psr_axes.shape, dtype=self.dtype)
-                             for i in range(source.size) )
+            # output PSR accumulator
+            sf_psr = np.zeros(psr_axes.shape, dtype=self.dtype)
 
-            if scatt_map.contents.nnz > 0:
-                dirs_x, dirs_y = scatt_map.contents.coords
-                attitudes = Attitude.from_axes(x = scatt_map.axes['x'].pix2skycoord(dirs_x),
-                                               y = scatt_map.axes['y'].pix2skycoord(dirs_y),
-                                               frame = 'icrs')
+            if len(scatt_map.attitudes) > 0:
+                attitudes = scatt_map.attitudes
+                frame = attitudes.frame
 
-                # rotation from source frame to local spacecraft
-                # frame in ICRS coordinate system
+                # rotation from source frame to local spacecraft frame
                 rots = attitudes.rot.inv().as_matrix()
 
                 # compute cartesian forms of source and PsiChi pixel dirs,
-                # using ICRS coord system to match Attitudes that will be
+                # using coord system matching Attitudes that will be
                 # used to rotate them
-                src_cart = source.transform_to('icrs').cartesian.xyz.value
-                sf_psichi_dirs_cart = sf_psichi_dirs.transform_to('icrs').cartesian.xyz.value
+                src_cart = source.transform_to(frame).cartesian.xyz.value
+                sf_psichi_dirs_cart = sf_psichi_dirs.transform_to(frame).cartesian.xyz.value
 
+                # rotate source dir from source frame to local spacecraft
+                # frame
+                loc_src_colat, loc_src_lon = rotate_coords(src_cart, rots)
+
+                # map source dir in local spacecraft frame to its nearest
+                # HEALPix pixel. TODO: this could be interpolated to map
+                # dir to multiple pixels + weights
+                loc_src_pixels = self._axes['NuLambda'].find_bin(theta = loc_src_colat,
+                                                                 phi   = loc_src_lon)
             else:
                 # scatt_map is empty
                 attitudes = []
                 rots = []
+                loc_src_pixels = []
 
-            for att, rot, exposure in zip(attitudes, rots, scatt_map.contents.data):
-
-                # rotate source dir(s) from source frame to local
-                # spacecraft frame
-                loc_src_colat, loc_src_lon = rotate_coords(src_cart, rot)
-
-                # map each source dir in local spacecraft frame to its nearest
-                # HEALPix pixel. TODO: this could be interpolated to map
-                # each dir to multiple pixels + weights
-                loc_src_pixels = self._axes['NuLambda'].find_bin(theta = loc_src_colat,
-                                                                 phi   = loc_src_lon)
+            for att, rot, loc_src_pixel, exposure in \
+                zip(attitudes, rots, loc_src_pixels, scatt_map.weights):
 
                 # rotate PsiChi pixel dirs from source frame into local
                 # spacecraft frame
@@ -570,33 +567,31 @@ class FullDetectorResponse(HealpixBase):
                     # interpolated)
                     loc_pol_bins = psr_axes['Pol'].find_bin(la)
 
-                    self._add_rot_psrs_pol(psr_axes, exposure,
-                                           loc_psichi_pixels, loc_pol_bins,
-                                           loc_src_pixels, sf_psrs)
+                    sf_psr += self._rot_psr_pol(psr_axes, exposure,
+                                                loc_psichi_pixels, loc_pol_bins,
+                                                loc_src_pixel)
                 else:
-                    self._add_rot_psrs(psr_axes, exposure,
-                                       loc_psichi_pixels,
-                                       loc_src_pixels, sf_psrs)
+                    sf_psr += self._rot_psr(psr_axes, exposure,
+                                            loc_psichi_pixels,
+                                            loc_src_pixel)
 
             # output PSRs for each source dir are in source frame
             psr_axes.set('PsiChi', sf_psichi_axis)
 
-            results = tuple( PointSourceResponse(psr_axes,
-                                                 contents = sf_psr,
-                                                 unit = self._unit * scatt_map.unit,
-                                                 copy_contents = False)
-                             for sf_psr in sf_psrs )
+            results = PointSourceResponse(psr_axes,
+                                          contents = sf_psr,
+                                          unit = self._unit * scatt_map.weights.unit,
+                                          copy_contents = False)
 
-            return results[0] if len(results) == 1 else results
+            return results
 
 
-    def _add_rot_psrs(self, axes, exposure,
-                      loc_psichi_pixels,
-                      loc_src_pixels, sf_psrs):
+    def _rot_psr(self, axes, exposure,
+                 loc_psichi_pixels,
+                 loc_src_pixel):
         """
-        For each pixel p in loc_src_pixels, rotate the local-frame PSR
-        for a source at p into the source's frame and add it to the
-        corresponding accumulator in the list sf_psrs.
+        Rotate the local-frame PSR for a source at local-frame pixel
+        loc_src_pixel into the source's frame.
 
         Parameters
         ----------
@@ -607,34 +602,28 @@ class FullDetectorResponse(HealpixBase):
         loc_psichi_pixels : ndarray
             local-frame pixel corresponding to each source-frame
             pixel on PSiChi axis
-        loc_src_pixels : ndarray
-            local-frame pixels for one or more source dirs
-        sf_psrs : ndarray [output parameter]
-            source-frame PSRs that accumulate rotated PSR weights
-            for each local-frame source dir
+        loc_src_pixel : int
+            local-frame pixel for source dir
 
         """
 
         aid_psichi = axes.label_to_index('PsiChi')
 
-        for sf_psr, p in zip(sf_psrs, loc_src_pixels):
+        # retrieve local-frame PSR for source pixel,
+        # weighted by exposure of local frame
+        loc_psr = self._get_pixel_raw(loc_src_pixel, weight=exposure)
 
-            # retrieve local-frame PSR for source pixel,
-            # weighted by exposure of local frame
-            loc_psr = self._get_pixel_raw(p, weight=exposure)
-
-            # rotate local PSR into source frame and add to accumulator
-            sf_psr += loc_psr.take(loc_psichi_pixels, axis=aid_psichi)
+        # rotate local PSR into source frame
+        return loc_psr.take(loc_psichi_pixels, axis=aid_psichi)
 
 
-    def _add_rot_psrs_pol(self, axes, exposure,
-                          loc_psichi_pixels, loc_pol_bins,
-                          loc_src_pixels, sf_psrs):
+    def _rot_psr_pol(self, axes, exposure,
+                     loc_psichi_pixels, loc_pol_bins,
+                     loc_src_pixel):
         """
-        For each pixel p in loc_src_pixels, rotate the local-frame
-        polarization PSR for a source at p into the source's frame and
-        add it to the corresponding accumulator in the list sf_psrs.
-        We must rotate both the PsiChi axis and the polarization angle
+        Rotate the local-frame polarization PSR for a source at
+        local-frame pixel loc_src_pixel into the source's frame. We
+        must rotate both the PsiChi axis and the polarization angle
         axis.
 
         Parameters
@@ -649,26 +638,21 @@ class FullDetectorResponse(HealpixBase):
         loc_pol_bins : ndarray
             local-frame polarization bin corresponding to each
             source-frame bin on Pol axis
-        loc_src_pixels : ndarray
-            local-frame source pixels
-        sf_psrs : ndarray [output parameter]
-            source-frame PSRs that accumulate rotated PSR weights
-            for each local-frame source pixel
+        loc_src_pixel : int
+            local-frame pixel for source dir
 
         """
 
         aid_psichi = axes.label_to_index('PsiChi')
         aid_pol = axes.label_to_index('Pol')
 
-        for sf_psr, p in zip(sf_psrs, loc_src_pixels):
+        # retrieve local-frame PSR for this pixel,
+        # weighted by exposure time
+        psr_loc = self._get_pixel_raw(loc_src_pixel, weight=exposure)
 
-            # retrieve local-frame PSR for this pixel,
-            # weighted by exposure time
-            psr_loc = self._get_pixel_raw(p, weight=exposure)
-
-            sf_psr += psr_loc.take(loc_psichi_pixels,
-                                   axis=aid_psichi).take(loc_pol_bins,
-                                                         axis=aid_pol)
+        return psr_loc.take(loc_psichi_pixels,
+                            axis=aid_psichi).take(loc_pol_bins,
+                                                  axis=aid_pol)
 
 
     def _setup_esr_params(self, coordsys, nside_image, nside_scatt_map):
@@ -727,8 +711,8 @@ class FullDetectorResponse(HealpixBase):
         nside_scatt_map : int
             NSIDE parameter for scatt map generation.
             If None, uses the detector response's NSIDE.
-        earth_occ : bool, default True
-            Whether to include Earth occultation in the response
+        earth_occ : bool, optional
+            True iff scatt_map should account for earth occultation
 
         Returns
         -------
@@ -741,13 +725,10 @@ class FullDetectorResponse(HealpixBase):
 
         scatt_map = orientation.get_scatt_map(nside = nside_scatt_map,
                                               target_coord = coord,
-                                              scheme = 'ring',
-                                              coordsys = hpbase.coordsys,
                                               earth_occ = earth_occ)
 
         psr = self.get_point_source_response(coord = coord,
-                                             scatt_map = scatt_map,
-                                             earth_occ = earth_occ)
+                                             scatt_map = scatt_map)
 
         return psr
 
@@ -777,7 +758,7 @@ class FullDetectorResponse(HealpixBase):
             NSIDE parameter for scatt map generation.
             If None, uses the detector response's NSIDE.
         earth_occ : bool, default True
-            Whether to include Earth occultation in the response
+            True iff scatt_map should account for earth occultation
 
         Returns
         -------
@@ -815,8 +796,7 @@ class FullDetectorResponse(HealpixBase):
             NSIDE parameter for scatt map generation.
             If None, uses the detector response's NSIDE.
         earth_occ : bool, default True
-            Whether to include Earth occultation in the response
-
+            True iff scatt_map should account for earth occultation
         Returns
         -------
         :py:class:`ExtendedSourceResponse`
