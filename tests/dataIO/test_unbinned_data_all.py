@@ -63,7 +63,7 @@ def test_unbinned_data_all(tmp_path):
     analysis.data_file = "test.txt"
     with pytest.raises(SystemExit) as pytest_wrapped_exp:
         analysis.read_tra()
-    assert pytest_wrapped_exp.type == SystemExit
+    assert pytest_wrapped_exp.type is SystemExit
     analysis.data_file = os.path.join(test_data.path,test_filename)
    
     # Test reading in .tra file (instead of .tra.gz):

@@ -1,6 +1,5 @@
 from cosipy import SpacecraftFile, SourceInjector
 from astropy.coordinates import SkyCoord
-from threeML import Powerlaw
 from pathlib import Path
 import os
 from cosipy import test_data
